@@ -1,9 +1,6 @@
 #ifndef _ANALYZE_H_
 #define _ANALYZE_H_
 
-/* Function buildSymtab constructs the symbol
- * table by preorder traversal of the syntax tree
- */
 void buildSymtab(TreeNode * syntaxTree);
 
 /* Procedure typeCheck performs type checking

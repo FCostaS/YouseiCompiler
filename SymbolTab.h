@@ -1,43 +1,39 @@
 #define SIZE 211
 #define SHIFT 4
+/*Conteúdo usual da tabela de símbolos
+Nome do identificador
+Tipo do identificador (variável, função...)
+Escopo da variável
+Tipo de dados do identificador (int, float, void...)
+Número da linha em que o identificador aparece no programa fonte*/
 
-typedef struct LineListRec{
+typedef struct LineListRec /*A lista de números de linha do código-fonte no qual uma variável é referência*/
+{
   int lineno;
   struct LineListRec * next;
-}*LineList;
+} *LineList;
 
+/* O registro nas listas de intervalos para cada variável, incluindo nome,
+local de memória atribuído e a lista de números de linha em que aparece no código-fonte */
 typedef struct BucketListRec{
-  char * name;
-  TreeNode * treeNode;
-  LineList lines;
-  int memloc; /* memory location for variable */
-  ExpType type;
-  struct BucketListRec * next;
-}*BucketList;
+    char * name;
+     LineList lines;
+     int memloc ; /* memory location for variable */
+     struct BucketListRec *next;
+} * BucketList;
 
-typedef struct ScopeListRec{
-  char * name; // function name
-  int nestedLevel;
-  struct ScopeListRec *parent;
-  BucketList hashTable[SIZE]; /* the hash table */
-}*Scope;
+typedef struct EscopoListRec{
+    char *nameEscopo;
+    int typeEscopo,lineno;
+    struct EscopoListRec *next;
+    BucketList *hashTable; /* Tabela Hash */
+}*Escopo;
 
-Scope globalScope;
-
-static Scope scopeList[SIZE];
-static int sizeOfList = 0;
-
-static Scope scopeStack[SIZE];
-static int topScope = 0;
+BucketList *hashTable;
+Escopo Programa, EscopoAtual;
 
 // Funções
 int hash ( char *key );
-Scope newScope(char * scopeName);
-void insertScopeToList(Scope scope);
-Scope currScope();
-void st_insert( char * scopeName, char * name, ExpType type, TreeNode * treeNode, int loc );
-/*
-void popScope(void);
-void pushScope(Scope scope);
-void insertScopeToList(Scope scope);
-*/
+void printSymTab(FILE * listing);
+int st_lookup ( char * name );
+void st_insert( char * name, int lineno, int loc );

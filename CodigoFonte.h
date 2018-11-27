@@ -25,9 +25,11 @@ void RunCompiler(char* codename)
       OpenCode(codename);
       listing = stdout;
       TreeNode *syntax = parse();
-      if(Arvore){ printf("Árvore Sintática\n"); printTree(syntax);} // Árvore Sintática
+      if(Arvore)
+      { printf("Árvore Sintática\n"); printTree(syntax);} // Árvore Sintática
       buildSymtab(syntax);
-      if(TSymbol){printf("Tabela de Símbolos\n"); }                // Tabela de Símbolos
+      if(TSymbol)
+      {}                // Tabela de Símbolos
       CloseCode();
 }
 

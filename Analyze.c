@@ -19,12 +19,13 @@ Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
     new->typeEscopo = type;
     new->lineno = lineno;
     new->next = NULL;
+    location = 0;
     return new;
 }
 
 void Init_EscopoGlobal()
 {
-      Programa = NovoEscopo(NULL,"Global",-1,0);
+      Programa = NovoEscopo(NULL,"Global",Global,0);
       EscopoAtual = Programa;
 }
 
@@ -65,7 +66,19 @@ static void insertNode( TreeNode * t)
           {
               case OpK:     break; // Nada a fazer
               case ConstK:  break; // Nada a fazer
-              case IdK:     st_insert(t->attr.name, t->lineno, location++); break; // Variável não declarada
+              case IdK: // Pode ocorrer: Usar variável sem declarar
+
+              if( st_lookup(t->attr.name) == -1 )
+              {
+                  BucketList *temp = hashTable;       // Guardo a hash atual
+                  hashTable = Programa->hashTable;    // Pego a hash Global
+                  // Procuro a variável na hash global
+                  if( st_lookup(t->attr.name) == -1 ){ ErrorType(t,1,EscopoAtual->nameEscopo); }
+                  hashTable = temp; // Atualizo para hash atual
+              }
+                else{ st_insert(t->attr.name, t->lineno, location++); }
+              break;
+
               case TypeK:   break; // Nada a fazer
               case ArrIdK:  break; // Nada a fazer
               case CallK:   st_insert(t->attr.name, t->lineno, location++); break; // Função foi invocada por a, mas retorn void
@@ -78,9 +91,14 @@ static void insertNode( TreeNode * t)
       {
           switch (t->kind.decl)
           {
-              case VarK: // Tipo da declarada é void | Variável já foi declarada
+              case VarK: // Variável já foi declarada
+
+              // Tentando declarar variável como void
+              if (t->child[0]->type == Void){ ErrorType(t,3,EscopoAtual->nameEscopo); }
                     st_insert(t->attr.name, t->lineno, location++);
               break;
+
+              // Tentando redeclarar uma variável
 
               case FunK:
                   EscopoAtual = NovoEscopo(EscopoAtual,t->attr.name,t->child[0]->type,t->lineno);

@@ -72,7 +72,6 @@
 
     static int savedNumber;
     static char *savedName;     /* for use in assignments */
-    static int savedLineNo;     /* ditto */
     static TreeNode *savedTree; /* Arvore Sintatica Final */
 
     extern char tokenString[MAXTOKENLEN+1];
@@ -80,7 +79,7 @@
     static int yylex(void);     /* Definindo um novo yylex para nao conflitar com o gerado pelo flex */
     int yyerror(char * message);
 
-#line 84 "CFL.tab.c" /* yacc.c:339  */
+#line 83 "CFL.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -164,7 +163,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 168 "CFL.tab.c" /* yacc.c:358  */
+#line 167 "CFL.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -465,13 +464,13 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    32,    32,    38,    55,    61,    65,    71,    79,    85,
-      92,   104,   109,   117,   116,   131,   135,   142,   153,   159,
-     165,   173,   181,   195,   200,   217,   222,   226,   230,   234,
-     238,   244,   248,   254,   260,   269,   277,   282,   289,   295,
-     301,   307,   306,   318,   325,   331,   336,   341,   346,   351,
-     356,   363,   370,   376,   381,   388,   395,   401,   406,   413,
-     417,   421,   425,   434,   433,   445,   450,   455,   472
+       0,    31,    31,    37,    54,    60,    64,    70,    77,    82,
+      89,   100,   105,   113,   112,   127,   131,   138,   149,   155,
+     161,   169,   177,   191,   196,   213,   218,   222,   226,   230,
+     234,   240,   244,   250,   256,   265,   273,   278,   285,   291,
+     297,   303,   302,   314,   321,   327,   332,   337,   342,   347,
+     352,   359,   366,   372,   377,   384,   391,   397,   402,   409,
+     413,   417,   421,   430,   429,   441,   446,   451,   468
 };
 #endif
 
@@ -1318,15 +1317,15 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 33 "CFL.y" /* yacc.c:1646  */
+#line 32 "CFL.y" /* yacc.c:1646  */
     {
                         savedTree = (yyvsp[0]);
                     }
-#line 1326 "CFL.tab.c" /* yacc.c:1646  */
+#line 1325 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 3:
-#line 39 "CFL.y" /* yacc.c:1646  */
+#line 38 "CFL.y" /* yacc.c:1646  */
     {
                          YYSTYPE t = (yyvsp[-1]);
                          if (t != NULL) // NÃO É O PRIMEIRO IRMÃO A INSERIR
@@ -1343,134 +1342,131 @@ yyreduce:
                                (yyval) = (yyvsp[0]);
                              }
                     }
-#line 1347 "CFL.tab.c" /* yacc.c:1646  */
+#line 1346 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 56 "CFL.y" /* yacc.c:1646  */
+#line 55 "CFL.y" /* yacc.c:1646  */
     {
                           (yyval) = (yyvsp[0]);
                       }
-#line 1355 "CFL.tab.c" /* yacc.c:1646  */
+#line 1354 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 5:
-#line 62 "CFL.y" /* yacc.c:1646  */
+#line 61 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1363 "CFL.tab.c" /* yacc.c:1646  */
+#line 1362 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 6:
-#line 66 "CFL.y" /* yacc.c:1646  */
+#line 65 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                       }
-#line 1371 "CFL.tab.c" /* yacc.c:1646  */
+#line 1370 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 7:
-#line 72 "CFL.y" /* yacc.c:1646  */
+#line 71 "CFL.y" /* yacc.c:1646  */
     {
                           savedName = copyString(tokenString);
-                          savedLineNo = lineno;
                     }
-#line 1380 "CFL.tab.c" /* yacc.c:1646  */
+#line 1378 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 8:
-#line 80 "CFL.y" /* yacc.c:1646  */
+#line 78 "CFL.y" /* yacc.c:1646  */
     {
                           savedNumber = atoi(tokenString);
-                          savedLineNo = lineno;
                     }
-#line 1389 "CFL.tab.c" /* yacc.c:1646  */
+#line 1386 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 9:
-#line 86 "CFL.y" /* yacc.c:1646  */
+#line 83 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(VarK,1); /* O no é uma declaracao */
                         (yyval)->child[0] = (yyvsp[-2]);
                         (yyval)->lineno = lineno;
                         (yyval)->attr.name = savedName;
                     }
-#line 1400 "CFL.tab.c" /* yacc.c:1646  */
+#line 1397 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 93 "CFL.y" /* yacc.c:1646  */
+#line 90 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(ArrVarK,1); /* O no é uma declaracao */
                         (yyval)->child[0] = (yyvsp[-5]);
                         (yyval)->lineno = lineno;
-                        savedLineNo = lineno;
                         (yyval)->type = IntegerArray;
                         (yyval)->attr.arr.name = savedName;
                         (yyval)->attr.arr.size = savedNumber;
                     }
-#line 1414 "CFL.tab.c" /* yacc.c:1646  */
+#line 1410 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 11:
-#line 105 "CFL.y" /* yacc.c:1646  */
+#line 101 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(TypeK,0); /* O no é uma expressão */
                         (yyval)->type = Integer;
                     }
-#line 1423 "CFL.tab.c" /* yacc.c:1646  */
+#line 1419 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 12:
-#line 110 "CFL.y" /* yacc.c:1646  */
+#line 106 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(TypeK,0); /* O no é uma expressão */
                         (yyval)->type = Void;
                      }
-#line 1432 "CFL.tab.c" /* yacc.c:1646  */
+#line 1428 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 117 "CFL.y" /* yacc.c:1646  */
+#line 113 "CFL.y" /* yacc.c:1646  */
     {
                        (yyval) = newNode(FunK,1);
                        (yyval)->lineno = lineno;
                        (yyval)->attr.name = savedName;
                     }
-#line 1442 "CFL.tab.c" /* yacc.c:1646  */
+#line 1438 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 123 "CFL.y" /* yacc.c:1646  */
+#line 119 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[-4]);
                         (yyval)->child[0] = (yyvsp[-6]);
                         (yyval)->child[1] = (yyvsp[-2]);
                         (yyval)->child[2] = (yyvsp[0]);
                     }
-#line 1453 "CFL.tab.c" /* yacc.c:1646  */
+#line 1449 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 15:
-#line 132 "CFL.y" /* yacc.c:1646  */
+#line 128 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1461 "CFL.tab.c" /* yacc.c:1646  */
+#line 1457 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 16:
-#line 136 "CFL.y" /* yacc.c:1646  */
+#line 132 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(ParamK,1); /* O no é uma declaracao */
                         (yyval)->type = Void;
                      }
-#line 1470 "CFL.tab.c" /* yacc.c:1646  */
+#line 1466 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 17:
-#line 143 "CFL.y" /* yacc.c:1646  */
+#line 139 "CFL.y" /* yacc.c:1646  */
     {
                        YYSTYPE t = (yyvsp[-2]);
                        if (t != NULL) {
@@ -1481,49 +1477,49 @@ yyreduce:
                          (yyval) = (yyvsp[-1]);
                        }
                     }
-#line 1485 "CFL.tab.c" /* yacc.c:1646  */
+#line 1481 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 18:
-#line 154 "CFL.y" /* yacc.c:1646  */
+#line 150 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1493 "CFL.tab.c" /* yacc.c:1646  */
+#line 1489 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 19:
-#line 160 "CFL.y" /* yacc.c:1646  */
+#line 156 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(ParamK,1);
                         (yyval)->child[0] = (yyvsp[-1]);
                         (yyval)->attr.name = savedName;
                     }
-#line 1503 "CFL.tab.c" /* yacc.c:1646  */
+#line 1499 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 166 "CFL.y" /* yacc.c:1646  */
+#line 162 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(ArrParamK,1);
                         (yyval)->child[0] = (yyvsp[-3]);
                         (yyval)->attr.name = copyString(savedName);
                     }
-#line 1513 "CFL.tab.c" /* yacc.c:1646  */
+#line 1509 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 21:
-#line 174 "CFL.y" /* yacc.c:1646  */
+#line 170 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(CompoundK,2);
                         (yyval)->child[0] = (yyvsp[-2]);
                         (yyval)->child[1] = (yyvsp[-1]);
                     }
-#line 1523 "CFL.tab.c" /* yacc.c:1646  */
+#line 1519 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 22:
-#line 182 "CFL.y" /* yacc.c:1646  */
+#line 178 "CFL.y" /* yacc.c:1646  */
     {
                         YYSTYPE t = (yyvsp[-1]);
                         if (t != NULL)
@@ -1537,19 +1533,19 @@ yyreduce:
                             (yyval) = (yyvsp[0]);
                           }
                      }
-#line 1541 "CFL.tab.c" /* yacc.c:1646  */
+#line 1537 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 23:
-#line 195 "CFL.y" /* yacc.c:1646  */
+#line 191 "CFL.y" /* yacc.c:1646  */
     {
                           (yyval) = NULL;
                       }
-#line 1549 "CFL.tab.c" /* yacc.c:1646  */
+#line 1545 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 24:
-#line 201 "CFL.y" /* yacc.c:1646  */
+#line 197 "CFL.y" /* yacc.c:1646  */
     {
                         YYSTYPE t = (yyvsp[-1]);
                         if (t != NULL)
@@ -1566,384 +1562,384 @@ yyreduce:
                             (yyval) = (yyvsp[0]);
                           }
                     }
-#line 1570 "CFL.tab.c" /* yacc.c:1646  */
+#line 1566 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 25:
-#line 217 "CFL.y" /* yacc.c:1646  */
+#line 213 "CFL.y" /* yacc.c:1646  */
     {
                           (yyval) = NULL;
                       }
-#line 1578 "CFL.tab.c" /* yacc.c:1646  */
+#line 1574 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 26:
+#line 219 "CFL.y" /* yacc.c:1646  */
+    {
+                        (yyval) = (yyvsp[0]);
+                    }
+#line 1582 "CFL.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 27:
 #line 223 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1586 "CFL.tab.c" /* yacc.c:1646  */
+#line 1590 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
-  case 27:
+  case 28:
 #line 227 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1594 "CFL.tab.c" /* yacc.c:1646  */
+#line 1598 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
-  case 28:
+  case 29:
 #line 231 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1602 "CFL.tab.c" /* yacc.c:1646  */
+#line 1606 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
-  case 29:
+  case 30:
 #line 235 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1610 "CFL.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 30:
-#line 239 "CFL.y" /* yacc.c:1646  */
-    {
-                        (yyval) = (yyvsp[0]);
-                    }
-#line 1618 "CFL.tab.c" /* yacc.c:1646  */
+#line 1614 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 31:
-#line 245 "CFL.y" /* yacc.c:1646  */
+#line 241 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[-1]);
                     }
-#line 1626 "CFL.tab.c" /* yacc.c:1646  */
+#line 1622 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 32:
-#line 249 "CFL.y" /* yacc.c:1646  */
+#line 245 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = NULL;
                     }
-#line 1634 "CFL.tab.c" /* yacc.c:1646  */
+#line 1630 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 33:
-#line 255 "CFL.y" /* yacc.c:1646  */
+#line 251 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(IfK,2);
                         (yyval)->child[0] = (yyvsp[-2]);
                         (yyval)->child[1] = (yyvsp[0]);
                     }
-#line 1644 "CFL.tab.c" /* yacc.c:1646  */
+#line 1640 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 34:
-#line 261 "CFL.y" /* yacc.c:1646  */
+#line 257 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(IfK,2);
                         (yyval)->child[0] = (yyvsp[-4]);
                         (yyval)->child[1] = (yyvsp[-2]);
                         (yyval)->child[2] = (yyvsp[0]);
                     }
-#line 1655 "CFL.tab.c" /* yacc.c:1646  */
+#line 1651 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 35:
-#line 270 "CFL.y" /* yacc.c:1646  */
+#line 266 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(WhileK,2);
                         (yyval)->child[0] = (yyvsp[-2]);
                         (yyval)->child[1] = (yyvsp[0]);
                     }
-#line 1665 "CFL.tab.c" /* yacc.c:1646  */
+#line 1661 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 36:
-#line 278 "CFL.y" /* yacc.c:1646  */
+#line 274 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(ReturnK,2);
                         (yyval)->type = Void;
                     }
-#line 1674 "CFL.tab.c" /* yacc.c:1646  */
+#line 1670 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 37:
-#line 283 "CFL.y" /* yacc.c:1646  */
+#line 279 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(ReturnK,2);
                         (yyval)->child[0] = (yyvsp[-1]);
                     }
-#line 1683 "CFL.tab.c" /* yacc.c:1646  */
+#line 1679 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 38:
-#line 290 "CFL.y" /* yacc.c:1646  */
+#line 286 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(AssignK,2);
                         (yyval)->child[0] = (yyvsp[-2]);
                         (yyval)->child[1] = (yyvsp[0]);
                     }
-#line 1693 "CFL.tab.c" /* yacc.c:1646  */
+#line 1689 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 39:
-#line 296 "CFL.y" /* yacc.c:1646  */
+#line 292 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1701 "CFL.tab.c" /* yacc.c:1646  */
+#line 1697 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 40:
-#line 302 "CFL.y" /* yacc.c:1646  */
+#line 298 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(IdK,0);
                         (yyval)->attr.name = savedName;
                     }
-#line 1710 "CFL.tab.c" /* yacc.c:1646  */
+#line 1706 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 41:
-#line 307 "CFL.y" /* yacc.c:1646  */
+#line 303 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(ArrIdK,0);
                         (yyval)->attr.name = savedName;
                     }
-#line 1719 "CFL.tab.c" /* yacc.c:1646  */
+#line 1715 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 42:
-#line 312 "CFL.y" /* yacc.c:1646  */
+#line 308 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[-3]);
                         (yyval)->child[0] = (yyvsp[-1]);
                     }
-#line 1728 "CFL.tab.c" /* yacc.c:1646  */
+#line 1724 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 43:
-#line 319 "CFL.y" /* yacc.c:1646  */
+#line 315 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(CalcK,0);
                         (yyval)->child[0] = (yyvsp[-2]);
                         (yyval)->child[1] = (yyvsp[-1]);
                         (yyval)->child[2] = (yyvsp[0]);
                     }
-#line 1739 "CFL.tab.c" /* yacc.c:1646  */
+#line 1735 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 44:
-#line 326 "CFL.y" /* yacc.c:1646  */
+#line 322 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1747 "CFL.tab.c" /* yacc.c:1646  */
+#line 1743 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 45:
-#line 332 "CFL.y" /* yacc.c:1646  */
+#line 328 "CFL.y" /* yacc.c:1646  */
     {
                       (yyval) = newNode(OpK,0); /* O no é uma expressão */
                       (yyval)->attr.op = SLT;
                     }
-#line 1756 "CFL.tab.c" /* yacc.c:1646  */
+#line 1752 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 46:
-#line 337 "CFL.y" /* yacc.c:1646  */
+#line 333 "CFL.y" /* yacc.c:1646  */
     {
                       (yyval) = newNode(OpK,0); /* O no é uma expressão */
                       (yyval)->attr.op = SLTE;
                     }
-#line 1765 "CFL.tab.c" /* yacc.c:1646  */
+#line 1761 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 47:
-#line 342 "CFL.y" /* yacc.c:1646  */
+#line 338 "CFL.y" /* yacc.c:1646  */
     {
                       (yyval) = newNode(OpK,0); /* O no é uma expressão */
                       (yyval)->attr.op = SBT;
                     }
-#line 1774 "CFL.tab.c" /* yacc.c:1646  */
+#line 1770 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 48:
-#line 347 "CFL.y" /* yacc.c:1646  */
+#line 343 "CFL.y" /* yacc.c:1646  */
     {
                       (yyval) = newNode(OpK,0); /* O no é uma expressão */
                       (yyval)->attr.op = SBTE;
                     }
-#line 1783 "CFL.tab.c" /* yacc.c:1646  */
+#line 1779 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 49:
-#line 352 "CFL.y" /* yacc.c:1646  */
+#line 348 "CFL.y" /* yacc.c:1646  */
     {
                       (yyval) = newNode(OpK,0); /* O no é uma expressão */
                       (yyval)->attr.op = EQUAL;
                     }
-#line 1792 "CFL.tab.c" /* yacc.c:1646  */
+#line 1788 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 50:
-#line 357 "CFL.y" /* yacc.c:1646  */
+#line 353 "CFL.y" /* yacc.c:1646  */
     {
                       (yyval) = newNode(OpK,0); /* O no é uma expressão */
                       (yyval)->attr.op = DIFF;
                     }
-#line 1801 "CFL.tab.c" /* yacc.c:1646  */
+#line 1797 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 51:
-#line 364 "CFL.y" /* yacc.c:1646  */
+#line 360 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(CalcK,0);
                         (yyval)->child[0] = (yyvsp[-2]);
                         (yyval)->child[1] = (yyvsp[-1]);
                         (yyval)->child[2] = (yyvsp[0]);
                     }
-#line 1812 "CFL.tab.c" /* yacc.c:1646  */
+#line 1808 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 52:
-#line 371 "CFL.y" /* yacc.c:1646  */
+#line 367 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1820 "CFL.tab.c" /* yacc.c:1646  */
+#line 1816 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 53:
-#line 377 "CFL.y" /* yacc.c:1646  */
+#line 373 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(OpK,0); /* O no é uma expressão */
                         (yyval)->attr.op = PLUS;
                     }
-#line 1829 "CFL.tab.c" /* yacc.c:1646  */
+#line 1825 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 54:
-#line 382 "CFL.y" /* yacc.c:1646  */
+#line 378 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(OpK,0); /* O no é uma expressão */
                         (yyval)->attr.op = MINUS;
                     }
-#line 1838 "CFL.tab.c" /* yacc.c:1646  */
+#line 1834 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 55:
-#line 389 "CFL.y" /* yacc.c:1646  */
+#line 385 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(CalcK,0);
                         (yyval)->child[0] = (yyvsp[-2]);
                         (yyval)->child[1] = (yyvsp[-1]);
                         (yyval)->child[2] = (yyvsp[0]);
                      }
-#line 1849 "CFL.tab.c" /* yacc.c:1646  */
+#line 1845 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 56:
-#line 396 "CFL.y" /* yacc.c:1646  */
+#line 392 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1857 "CFL.tab.c" /* yacc.c:1646  */
+#line 1853 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 57:
-#line 402 "CFL.y" /* yacc.c:1646  */
+#line 398 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(OpK,0);
                         (yyval)->attr.op = STAR;
                     }
-#line 1866 "CFL.tab.c" /* yacc.c:1646  */
+#line 1862 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 58:
-#line 407 "CFL.y" /* yacc.c:1646  */
+#line 403 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(OpK,0);
                         (yyval)->attr.op = BAR;
                     }
-#line 1875 "CFL.tab.c" /* yacc.c:1646  */
+#line 1871 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 59:
-#line 414 "CFL.y" /* yacc.c:1646  */
+#line 410 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[-1]);
                     }
-#line 1883 "CFL.tab.c" /* yacc.c:1646  */
+#line 1879 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 60:
+#line 414 "CFL.y" /* yacc.c:1646  */
+    {
+                        (yyval) = (yyvsp[0]);
+                    }
+#line 1887 "CFL.tab.c" /* yacc.c:1646  */
+    break;
+
+  case 61:
 #line 418 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1891 "CFL.tab.c" /* yacc.c:1646  */
-    break;
-
-  case 61:
-#line 422 "CFL.y" /* yacc.c:1646  */
-    {
-                        (yyval) = (yyvsp[0]);
-                    }
-#line 1899 "CFL.tab.c" /* yacc.c:1646  */
+#line 1895 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 62:
-#line 426 "CFL.y" /* yacc.c:1646  */
+#line 422 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(ConstK,0);
                         (yyval)->type = Integer;
                         (yyval)->attr.val = atoi(tokenString);
                     }
-#line 1909 "CFL.tab.c" /* yacc.c:1646  */
+#line 1905 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 63:
-#line 434 "CFL.y" /* yacc.c:1646  */
+#line 430 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = newNode(CallK,0);
                         (yyval)->attr.name = savedName;
                     }
-#line 1918 "CFL.tab.c" /* yacc.c:1646  */
+#line 1914 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 64:
-#line 439 "CFL.y" /* yacc.c:1646  */
+#line 435 "CFL.y" /* yacc.c:1646  */
     {
                        (yyval) = (yyvsp[-3]);
                        (yyval)->child[0] = (yyvsp[-1]);
                     }
-#line 1927 "CFL.tab.c" /* yacc.c:1646  */
+#line 1923 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 65:
-#line 446 "CFL.y" /* yacc.c:1646  */
+#line 442 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1935 "CFL.tab.c" /* yacc.c:1646  */
+#line 1931 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 66:
-#line 450 "CFL.y" /* yacc.c:1646  */
+#line 446 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = NULL;
                     }
-#line 1943 "CFL.tab.c" /* yacc.c:1646  */
+#line 1939 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 67:
-#line 456 "CFL.y" /* yacc.c:1646  */
+#line 452 "CFL.y" /* yacc.c:1646  */
     {
                         YYSTYPE t = (yyvsp[-2]);
                         if (t != NULL)
@@ -1960,19 +1956,19 @@ yyreduce:
                              (yyval) = (yyvsp[0]);
                           }
                    }
-#line 1964 "CFL.tab.c" /* yacc.c:1646  */
+#line 1960 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
   case 68:
-#line 473 "CFL.y" /* yacc.c:1646  */
+#line 469 "CFL.y" /* yacc.c:1646  */
     {
                         (yyval) = (yyvsp[0]);
                     }
-#line 1972 "CFL.tab.c" /* yacc.c:1646  */
+#line 1968 "CFL.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1976 "CFL.tab.c" /* yacc.c:1646  */
+#line 1972 "CFL.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -2200,7 +2196,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 477 "CFL.y" /* yacc.c:1906  */
+#line 473 "CFL.y" /* yacc.c:1906  */
 
 
 int yyerror(char * message)
@@ -2225,12 +2221,9 @@ TreeNode *newNode(DeclKind kind,int type)
     {
         for (i=0;i<MAXCHILDREN;i++){ t->child[i] = NULL; }
         t->sibling = NULL;
-        /* O nó é uma declaracao */
-        if( type == 1 ){ t->nodekind = DeclK; t->kind.decl = kind; }
-          /* O nó é uma expressao */
-          else if( type == 0 ){ t->nodekind = ExpK; t->kind.exp = kind; }
-            /* O nó é uma statement */
-            else{ t->nodekind = StmtK; t->kind.stmt = kind; }
+        if( type == 1 ){ t->nodekind = DeclK; t->kind.decl = kind; }         /* O nó é uma declaracao */
+          else if( type == 0 ){ t->nodekind = ExpK; t->kind.exp = kind; }    /* O nó é uma expressao */
+            else{ t->nodekind = StmtK; t->kind.stmt = kind; }                /* O nó é uma statement */
         t->lineno = lineno;
         t->type = Void;
     }

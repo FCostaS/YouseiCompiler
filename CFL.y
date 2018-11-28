@@ -8,7 +8,6 @@
 
     static int savedNumber;
     static char *savedName;     /* for use in assignments */
-    static int savedLineNo;     /* ditto */
     static TreeNode *savedTree; /* Arvore Sintatica Final */
 
     extern char tokenString[MAXTOKENLEN+1];
@@ -71,7 +70,6 @@ declaracao:         var_declaracao
 id :                ID
                     {
                           savedName = copyString(tokenString);
-                          savedLineNo = lineno;
                     }
                     ;
 
@@ -79,7 +77,6 @@ num :
                     NUM
                     {
                           savedNumber = atoi(tokenString);
-                          savedLineNo = lineno;
                     }
 
 var_declaracao:     tipo_espicificador id POINTVIG
@@ -94,7 +91,6 @@ var_declaracao:     tipo_espicificador id POINTVIG
                         $$ = newNode(ArrVarK,1); /* O no é uma declaracao */
                         $$->child[0] = $1;
                         $$->lineno = lineno;
-                        savedLineNo = lineno;
                         $$->type = IntegerArray;
                         $$->attr.arr.name = savedName;
                         $$->attr.arr.size = savedNumber;
@@ -498,12 +494,9 @@ TreeNode *newNode(DeclKind kind,int type)
     {
         for (i=0;i<MAXCHILDREN;i++){ t->child[i] = NULL; }
         t->sibling = NULL;
-        /* O nó é uma declaracao */
-        if( type == 1 ){ t->nodekind = DeclK; t->kind.decl = kind; }
-          /* O nó é uma expressao */
-          else if( type == 0 ){ t->nodekind = ExpK; t->kind.exp = kind; }
-            /* O nó é uma statement */
-            else{ t->nodekind = StmtK; t->kind.stmt = kind; }
+        if( type == 1 ){ t->nodekind = DeclK; t->kind.decl = kind; }         /* O nó é uma declaracao */
+          else if( type == 0 ){ t->nodekind = ExpK; t->kind.exp = kind; }    /* O nó é uma expressao */
+            else{ t->nodekind = StmtK; t->kind.stmt = kind; }                /* O nó é uma statement */
         t->lineno = lineno;
         t->type = Void;
     }

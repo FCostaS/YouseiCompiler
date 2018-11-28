@@ -35,7 +35,7 @@ typedef enum { StmtK, ExpK, DeclK } NodeKind;
 typedef enum { IfK, WhileK, AssignK, CompoundK, ReturnK } StmtKind;
 typedef enum { OpK, ConstK, IdK, TypeK, ArrIdK, CallK, CalcK } ExpKind;
 typedef enum { VarK, FunK, ArrVarK, ArrParamK, ParamK } DeclKind; /* DeclKind chega o tipo de declaracao */
-typedef enum { Void, Integer, IntegerArray } ExpType; /* ExpType chega o tipo de expressão da variavel */
+typedef enum { Void, Integer, IntegerArray, Global, GlobalArray } ExpType; /* ExpType chega o tipo de expressão da variavel */
 
 #define MAXCHILDREN 3
 
@@ -64,7 +64,6 @@ typedef struct treeNode {
 
    TokenType type;
    ArrAttr arr;
-   //struct ScopeListRec *scope;
  } attr; // Atributos do no
 
   ExpType type;

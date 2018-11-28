@@ -1,6 +1,5 @@
 %{
 #include "Globals.h"
-#include "Scan.h"
 
 char tokenString[MAXTOKENLEN+1];
 %}
@@ -10,6 +9,7 @@ ID		    [a-zA-Z0-9]
 LETRA 		[a-zA-Z]
 COMENTARIO	[^*/]*
 WHITESPACE	[ \t]
+SYMBOLERROR [.]
 
 %%
 else			        						{return ELSE;}
@@ -37,6 +37,7 @@ while			        						{return WHILE;}
 "]"				            				{return CLARR;}
 "{"				 		  	           	{return OPCHA;}
 "}"				      	      			{return CLCHA;}
+{SYMBOLERROR}                 {return ERRO;}
 {LETRA}({LETRA}|{DIGITO})*		{return ID;}
 {DIGITO}+			        				{return NUM;}
 "\n"													{lineno++;}

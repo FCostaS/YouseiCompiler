@@ -5,6 +5,22 @@
 
 /* counter for variable memory locations */
 static int location = 0;
+int Attrib = 0;
+Escopo Interator;
+BucketList *temp;
+int TemMain = 0; // Considera que não existe main
+extern FunctionsProgram FuncNames;
+
+void FunctionsNameInsert(char *name)
+{
+    /*
+    FunctionsProgram new = (FunctionsProgram)malloc(sizeof(FunctionsProgram));
+    FuncNames->next = new;
+    new->next = NULL;
+    FuncNames = new;
+    new->Name = copyString(name);
+    */
+}
 
 Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
 {
@@ -51,11 +67,11 @@ static void insertNode( TreeNode * t)
       {
           switch (t->kind.stmt)
           {
-              case IfK:       break; // Nada a fazer
-              case WhileK:    break; // Nada a fazer
-              case AssignK:   break; // Nada a fazer
-              case CompoundK: break; // Nada a fazer
-              case ReturnK:   break; // Nada a fazer
+              case IfK:       Attrib = 0; break; // Nada a fazer
+              case WhileK:    Attrib = 0; break; // Nada a fazer
+              case AssignK:   Attrib = 1; break; // Nada a fazer
+              case CompoundK: Attrib = 0; break; // Nada a fazer
+              case ReturnK:   Attrib = 0; break; // Nada a fazer
           }
       }
       break;
@@ -64,57 +80,96 @@ static void insertNode( TreeNode * t)
       {
           switch (t->kind.exp)
           {
-              case OpK:     break; // Nada a fazer
-              case ConstK:  break; // Nada a fazer
-              case IdK: // Pode ocorrer: Usar variável sem declarar
+              case OpK:     Attrib = 0; break; // Nada a fazer
+              case ConstK:  Attrib = 0; break; // Nada a fazer
+              case IdK:                        // Tratando Erro Tipo 1
 
-              if( st_lookup(t->attr.name) == -1 )
+              if( st_lookup(t->attr.name) == -1 )     // Procuro a variável na tabela
               {
-                  BucketList *temp = hashTable;       // Guardo a hash atual
+                  temp = hashTable;       // Guardo a hash atual
                   hashTable = Programa->hashTable;    // Pego a hash Global
                   // Procuro a variável na hash global
-                  if( st_lookup(t->attr.name) == -1 ){ ErrorType(t,1,EscopoAtual->nameEscopo); }
+                  if( st_lookup(t->attr.name) == -1 ){ ErrorType(t,1,EscopoAtual->nameEscopo,EscopoAtual->lineno); }
                   hashTable = temp; // Atualizo para hash atual
               }
-                else{ st_insert(t->attr.name, t->lineno, location++); }
+                // Considera que a variável já foi declarada, não precisa inserir tipo na tabela (Default)
+                else{ st_insert(t->attr.name, t->lineno, location++, Default); }
+
+              break;
+              case TypeK:   Attrib = 0; break; // Nada a fazer
+              case ArrIdK:  break; // Nada a fazer
+              case CallK:  // Tratando Erro tipo 2 e tipo 5
+
+              // Chamada de função não declarada
+              Interator = Programa;
+              ExpType type;
+              while(Interator != NULL)
+              {
+                  if(strcmp(t->attr.name,Interator->nameEscopo)==0) // Procurando a função invocada na lista de funções
+                  {
+                      type = Interator->typeEscopo;
+                      break; // Encontrou a função
+                  }
+                    else{ Interator = Interator->next; }
+              }
+              if(Interator == NULL)
+              { ErrorType(t,5,EscopoAtual->nameEscopo,EscopoAtual->lineno); }
+                else
+                {
+                    // Função foi invocada por a, mas retorn void
+                    if( (Attrib == 1) && (type == Void) )
+                    {
+                        ErrorType(t,2,EscopoAtual->nameEscopo,EscopoAtual->lineno);
+                    }
+                    st_insert(t->attr.name, t->lineno, location++, Funct);
+                }
+
               break;
 
-              case TypeK:   break; // Nada a fazer
-              case ArrIdK:  break; // Nada a fazer
-              case CallK:   st_insert(t->attr.name, t->lineno, location++); break; // Função foi invocada por a, mas retorn void
-              case CalcK:   break; // Nada a fazer
+              case CalcK:  break; // Nada a fazer
           }
       }
       break;
 
       case DeclK:
       {
+          Attrib = 0;
           switch (t->kind.decl)
           {
-              case VarK: // Variável já foi declarada
-
-              // Tentando declarar variável como void
-              if (t->child[0]->type == Void){ ErrorType(t,3,EscopoAtual->nameEscopo); }
-                    st_insert(t->attr.name, t->lineno, location++);
-              break;
-
-              // Tentando redeclarar uma variável
-
-              case FunK:
-                  EscopoAtual = NovoEscopo(EscopoAtual,t->attr.name,t->child[0]->type,t->lineno);
-              break;
-
-              case ArrVarK: // Tipo da declarada é void | Variável já foi declarada
-                    st_insert(t->attr.arr.name, t->lineno, location++);
-              break;
-
               case ArrParamK:
-                    //if (t->attr.name != NULL) printf("%s %s\n",t->attr.name);
-                    st_insert(t->attr.name, t->lineno,location++);
+                    AnalyzeErrosDecl(t);
+                    st_insert(t->attr.name, t->lineno,location++, IntArray);
               break;
 
               case ParamK:
-                    if (t->attr.name != NULL){ st_insert(t->attr.name, t->lineno, location++); }
+                    if (t->attr.name != NULL)
+                    {
+                        AnalyzeErrosDecl(t);
+                        st_insert(t->attr.name, t->lineno, location++, Int);
+                    }
+              break;
+
+              case ArrVarK: // Tipo da declarada é void | Variável já foi declarada
+                    AnalyzeErrosDeclArray(t);
+                    st_insert(t->attr.arr.name, t->lineno, location++, IntArray);
+              break;
+
+              case VarK: // Tratando erro tipo 3 e 4 e 7.1
+                    AnalyzeErrosDecl(t);
+                    st_insert(t->attr.name, t->lineno, location++, Int);
+              break;
+
+              case FunK: // Tratando erro tipo 3 e 4 e 7.2
+
+                  // Tentando declarar uma função que tem nome de variável global
+                  temp = hashTable;       // Guardo a hash atual
+                  hashTable = Programa->hashTable;    // Pego a hash Global
+                  if( st_lookup(t->attr.name) != -1 ) // Procuro a variável na hash global
+                  { ErrorType(t,7,t->attr.name,t->lineno); }
+                  hashTable = temp;                   // Atualizo para hash atual
+
+                  EscopoAtual = NovoEscopo(EscopoAtual,t->attr.name,t->child[0]->type,t->lineno);
+                  if( strcmp(t->attr.name,"main") == 0){ TemMain = 1; }
               break;
           }
       }
@@ -132,5 +187,57 @@ void buildSymtab(TreeNode * syntaxTree)
 {
     Init_EscopoGlobal();
     traverse(syntaxTree,insertNode,nullProc);
-    printSymTab(listing);
+    if(TemMain==0){ ErrorType(syntaxTree,6,EscopoAtual->nameEscopo,location); }
+    //printSymTab(listing);
 }
+
+void AnalyzeErrosDecl(TreeNode * t)
+{
+      // Tentando declarar variável como void
+      if (t->child[0]->type == Void)
+      { ErrorType(t,3,EscopoAtual->nameEscopo,EscopoAtual->lineno); }
+
+      // Tentando redeclarar uma variável
+      if( st_lookup(t->attr.name) != -1 )
+      {
+          ErrorType(t,4,EscopoAtual->nameEscopo,location);
+          //break;
+      }
+
+      // Tentando declarar uma variável que já recebeu nome de função
+      Interator = Programa;
+      while(Interator!=NULL)
+      {
+          if(strcmp(t->attr.name,Interator->nameEscopo)==0)
+          {
+              ErrorType(t,7,t->attr.name,t->lineno);
+          }
+          Interator = Interator->next;
+      }
+}
+
+void AnalyzeErrosDeclArray(TreeNode * t)
+{
+      // Tentando declarar variável como void
+      if (t->child[0]->type == Void)
+      { ErrorType(t,3,EscopoAtual->nameEscopo,EscopoAtual->lineno); }
+
+      // Tentando redeclarar uma variável
+      if( st_lookup(t->attr.arr.name) != -1 ) // Se eu encontra  a variável na tabela
+      {
+          ErrorType(t,4,EscopoAtual->nameEscopo,location);
+          //break;
+      }
+
+      // Tentando declarar uma variável que já recebeu nome de função
+      Interator = Programa;
+      while(Interator!=NULL)
+      {
+          if(strcmp(t->attr.arr.name,Interator->nameEscopo)==0)
+          {
+              ErrorType(t,7,t->attr.arr.name,t->lineno);
+          }
+          Interator = Interator->next;
+      }
+}
+//if (t->attr.name != NULL) printf("%s %s\n",t->attr.name);

@@ -28,6 +28,17 @@ char *TypeEscopo(ExpType Type)
     }
 }
 
+char *TypeVariable( VarType TYPE)
+{
+    switch(TYPE)
+    {
+        case Int:           return "Integer";
+        case IntArray:      return "Integer Array";
+        case Funct:         return "Function";
+        case Default:       printf("Você esqueceu de definir mais tipos\n");
+    }
+}
+
 /* Função st_lookup retorna o local da memória de uma variável ou -1 se não for encontrado */
 int st_lookup ( char * name )
 {
@@ -40,7 +51,7 @@ int st_lookup ( char * name )
 }
 
 /* Insere numeros de linhas e localização da memória na tabela de símbolos */
-void st_insert( char * name, int lineno, int loc )
+void st_insert( char * name, int lineno, int loc ,VarType var)
 {
   int h = hash(name);
   BucketList l =  hashTable[h];
@@ -50,6 +61,7 @@ void st_insert( char * name, int lineno, int loc )
   {
     l = (BucketList) malloc(sizeof(struct BucketListRec));
     l->name = name;
+    l->DataType = var;
     l->lines = (LineList) malloc(sizeof(struct LineListRec));
     l->lines->lineno = lineno;
     l->memloc = loc;
@@ -75,8 +87,8 @@ void printSymTab(FILE * listing)
   {
       int i;
       fprintf(listing,"Function: %s Type: %s Line: %d\n",index->nameEscopo,TypeEscopo(index->typeEscopo),index->lineno);
-      fprintf(listing,"Variable Name  Location   Line Numbers\n");
-      fprintf(listing,"-------------  --------   ------------\n");
+      fprintf(listing,"Variable Name  Type Variable  Location   Line Numbers\n");
+      fprintf(listing,"-------------  -------------  --------   ------------\n");
       for (i=0;i<SIZE;++i)
       {
         if (index->hashTable[i] != NULL)
@@ -86,6 +98,7 @@ void printSymTab(FILE * listing)
           {
             LineList t = l->lines;
             fprintf(listing,"%-14s ",l->name);
+            fprintf(listing,"%-14s ",TypeVariable(l->DataType));
             fprintf(listing,"%-8d  ",l->memloc);
             while (t != NULL)
             { fprintf(listing,"%4d ",t->lineno);

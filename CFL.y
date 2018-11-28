@@ -2,7 +2,6 @@
 %{
     #define YYPARSER           /* Distingue as variaveis de saida do Yacc das dos demais codigos */
     #include "Globals.h"
-    #include "Scan.h"
     #include <string.h>
     #define YYSTYPE TreeNode*   /* Definindo tipo do valor semantico como no da arvore sintatica */
 
@@ -14,6 +13,7 @@
 
     static int yylex(void);     /* Definindo um novo yylex para nao conflitar com o gerado pelo flex */
     int yyerror(char * message);
+    FunctionsProgram *FuncNames = NULL;
 %}
 
 %start programa
@@ -114,6 +114,7 @@ fun_declaracao:     tipo_espicificador id
                        $$ = newNode(FunK,1);
                        $$->lineno = lineno;
                        $$->attr.name = savedName;
+                       FunctionsNameInsert(savedName);
                     }
                     OPPAR params CLPAR composto_decl
                     {

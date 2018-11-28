@@ -5,7 +5,8 @@ Nome do identificador
 Tipo do identificador (variável, função...)
 Escopo da variável
 Tipo de dados do identificador (int, float, void...)
-Número da linha em que o identificador aparece no programa fonte*/
+Número da linha em que o identificador aparece no programa fonte
+*/
 
 typedef struct LineListRec /*A lista de números de linha do código-fonte no qual uma variável é referência*/
 {
@@ -16,11 +17,12 @@ typedef struct LineListRec /*A lista de números de linha do código-fonte no qu
 /* O registro nas listas de intervalos para cada variável, incluindo nome,
 local de memória atribuído e a lista de números de linha em que aparece no código-fonte */
 typedef struct BucketListRec{
-    char * name;
+    char *name;
      LineList lines;
+     VarType DataType;
      int memloc ; /* memory location for variable */
      struct BucketListRec *next;
-} * BucketList;
+}*BucketList;
 
 typedef struct EscopoListRec{
     char *nameEscopo;
@@ -36,4 +38,4 @@ Escopo Programa, EscopoAtual;
 int hash ( char *key );
 void printSymTab(FILE * listing);
 int st_lookup ( char * name );
-void st_insert( char * name, int lineno, int loc );
+void st_insert( char * name, int lineno, int loc ,VarType var);

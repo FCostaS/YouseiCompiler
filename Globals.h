@@ -36,6 +36,7 @@ typedef enum { IfK, WhileK, AssignK, CompoundK, ReturnK } StmtKind;
 typedef enum { OpK, ConstK, IdK, TypeK, ArrIdK, CallK, CalcK } ExpKind;
 typedef enum { VarK, FunK, ArrVarK, ArrParamK, ParamK } DeclKind; /* DeclKind chega o tipo de declaracao */
 typedef enum { Void, Integer, IntegerArray, Global, GlobalArray } ExpType; /* ExpType chega o tipo de expressão da variavel */
+typedef enum { Int, IntArray, Funct, Default} VarType;
 
 #define MAXCHILDREN 3
 
@@ -81,3 +82,10 @@ void printToken(TokenType token, const char* tokenString );
 // SCAN FUNÇÕES
 TokenType getToken(void);
 char *copyString(char * s);
+
+/// Hash Table Functions
+typedef struct Functions{
+    char *Name;
+    struct Functions *next;
+}*FunctionsProgram;
+void FunctionsNameInsert(char *name);

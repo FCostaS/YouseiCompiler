@@ -9,18 +9,7 @@ int Attrib = 0;
 Escopo Interator;
 BucketList *temp;
 int TemMain = 0; // Considera que não existe main
-extern FunctionsProgram FuncNames;
-
-void FunctionsNameInsert(char *name)
-{
-    /*
-    FunctionsProgram new = (FunctionsProgram)malloc(sizeof(FunctionsProgram));
-    FuncNames->next = new;
-    new->next = NULL;
-    FuncNames = new;
-    new->Name = copyString(name);
-    */
-}
+int iteradorINT;
 
 Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
 {
@@ -205,14 +194,12 @@ void AnalyzeErrosDecl(TreeNode * t)
       }
 
       // Tentando declarar uma variável que já recebeu nome de função
-      Interator = Programa;
-      while(Interator!=NULL)
+      for(iteradorINT=0;iteradorINT < FList.iterator;iteradorINT++)
       {
-          if(strcmp(t->attr.name,Interator->nameEscopo)==0)
+          if(strcmp(t->attr.name,FList.ListFunctions[iteradorINT])==0)
           {
               ErrorType(t,7,t->attr.name,t->lineno);
           }
-          Interator = Interator->next;
       }
 }
 
@@ -230,14 +217,12 @@ void AnalyzeErrosDeclArray(TreeNode * t)
       }
 
       // Tentando declarar uma variável que já recebeu nome de função
-      Interator = Programa;
-      while(Interator!=NULL)
+      for(iteradorINT=0;iteradorINT < FList.iterator;iteradorINT++)
       {
-          if(strcmp(t->attr.arr.name,Interator->nameEscopo)==0)
+          if(strcmp(t->attr.arr.name,FList.ListFunctions[iteradorINT])==0)
           {
               ErrorType(t,7,t->attr.arr.name,t->lineno);
           }
-          Interator = Interator->next;
       }
 }
 //if (t->attr.name != NULL) printf("%s %s\n",t->attr.name);

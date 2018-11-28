@@ -8,6 +8,7 @@ int Error = FALSE;
 FILE *source;
 FILE *listing;
 FILE *code;
+FunctionsProgram FList;
 
 // FLAGS
 int Arvore  = FALSE;
@@ -24,16 +25,16 @@ void RunCompiler(char* codename)
 {
       OpenCode(codename);
       listing = stdout;
+      StartFunctionList(&FList);
       TreeNode *syntax = parse();
-      if(Error == FALSE)
+      if(Error == FALSE) // Consegui montar a árvore
       {
-        if(Arvore)
-        { printf("Árvore Sintática\n"); printTree(syntax);} // Árvore Sintática
+        if(Arvore) // Árvore Sintática
+        {
+          printf("Árvore Sintática\n"); printTree(syntax);
+        }
         buildSymtab(syntax);
-        if(TSymbol)
-        {}                // Tabela de Símbolos
       }
-
       CloseCode();
 }
 

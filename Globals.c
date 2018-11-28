@@ -1,5 +1,13 @@
 #include "Globals.h"
 
+void StartFunctionList(FunctionsProgram *F){ F->iterator = 0; }
+
+void InsertFunctionList(FunctionsProgram *F,char *name)
+{
+    strcpy(F->ListFunctions[F->iterator],name);
+    F->iterator++;
+}
+
 void printToken( TokenType token, const char* tokenString )
 {
   switch (token)

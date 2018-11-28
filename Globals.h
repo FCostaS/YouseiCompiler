@@ -17,6 +17,7 @@
 #endif
 
 #define MAXTOKENLEN 40
+#define MAXFUNCTIONS 40
 typedef int TokenType;
 
 // Variaveis da biblioteca CodigoFonte.h
@@ -26,10 +27,6 @@ extern FILE* code;    /* code text file for TM simulator */
 extern int lineno;    /* Indica o número da linha daquele código */
 extern int Error;     /* Flag que indica se houve algum erro */
 extern int Lexical;
-
-/**************************************************/
-/***********   Syntax tree for parsing ************/
-/**************************************************/
 
 typedef enum { StmtK, ExpK, DeclK } NodeKind;
 typedef enum { IfK, WhileK, AssignK, CompoundK, ReturnK } StmtKind;
@@ -47,8 +44,8 @@ typedef struct Array{
 } ArrAttr;
 
 typedef struct treeNode {
-  struct treeNode * child[MAXCHILDREN];
-  struct treeNode * sibling;
+  struct treeNode *child[MAXCHILDREN];
+  struct treeNode *sibling;
   int lineno;
   NodeKind nodekind; // Tipo de variavel/token
 
@@ -84,8 +81,10 @@ TokenType getToken(void);
 char *copyString(char * s);
 
 /// Hash Table Functions
-typedef struct Functions{
-    char *Name;
-    struct Functions *next;
-}*FunctionsProgram;
-void FunctionsNameInsert(char *name);
+typedef struct FunctionStruct{
+    char ListFunctions[MAXFUNCTIONS][MAXTOKENLEN+1];
+    int iterator;
+}FunctionsProgram;
+extern FunctionsProgram FList;
+void StartFunctionList(FunctionsProgram *F);
+void InsertFunctionList(FunctionsProgram *F,char *name);

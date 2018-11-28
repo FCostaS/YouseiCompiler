@@ -11,35 +11,35 @@ void ErrorType(TreeNode * t,int TypeTest,char *function, int lineno)
         /* Variável não declarada */
         case 1:
             fprintf(listing,"- In function '%s': line %d\n",function,lineno);
-            typeError(t,"\tVariável não declarada");
+            typeError(t,"\tVariable not declared.");
             fprintf(listing,"\n\t\t\tDeclare the variable: %s\n",t->attr.name);
         break;
 
         /* Atribuição inválida: a é do tipo int e exemplo() não retorna int */
         case 2:
             fprintf(listing,"- In function '%s': line %d\n",function,lineno);
-            typeError(t,"\tVariável não retorna nada");
+            typeError(t,"\tVariable returns nothing.");
             fprintf(listing,"\n\t\t\tFunction is of type void.: %s\n",t->attr.name);
         break;
 
         /* Declaração inválida de variável, void só pode ser usado para declaração de função. */
         case 3:
             fprintf(listing,"- In function '%s': line %d\n",function,lineno);
-            typeError(t, "\tVariável não pode ser do tipo void");
+            typeError(t, "\tVariable can not be of type void.");
             fprintf(listing,"\n\t\t\tSet the variable '%s' to integer.\n",t->attr.name);
         break;
 
         /* Declaração inválida, a já foi declarada previamente */
         case 4:
           fprintf(listing,"- In function '%s': line %d\n",function,lineno);
-          typeError(t, "\tVariável já foi definida previamente");
+          typeError(t, "\tVariable has already been defined previously.");
           fprintf(listing,"\n\t\t\tRemove one of the variables '%s'\n",t->attr.name);
         break;
 
         /* Chamada de função não declarada */
         case 5:
           fprintf(listing,"- In function '%s': line %d\n",function,lineno);
-          typeError(t, "\tFunção não declarada");
+          typeError(t, "\tUndeclared function.");
           fprintf(listing,"\n\t\t\tDeclare the function '%s'\n",t->attr.name);
         break;
 
@@ -52,7 +52,7 @@ void ErrorType(TreeNode * t,int TypeTest,char *function, int lineno)
         /* Declaração inválida, xyz já foi declarado como nome de função */
         case 7:
           fprintf(listing,"- In function '%s': line %d\n",function,lineno);
-          typeError(t, "\tAmbiguidade na declaração");
+          typeError(t, "\tAmbiguity in the statement.");
           fprintf(listing,"\n\t\t\tFunction and variable with same name '%s'\n",function);
         break;
       }

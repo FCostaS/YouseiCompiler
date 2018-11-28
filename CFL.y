@@ -10,10 +10,8 @@
     static TreeNode *savedTree; /* Arvore Sintatica Final */
 
     extern char tokenString[MAXTOKENLEN+1];
-
     static int yylex(void);     /* Definindo um novo yylex para nao conflitar com o gerado pelo flex */
     int yyerror(char * message);
-    FunctionsProgram *FuncNames = NULL;
 %}
 
 %start programa
@@ -114,7 +112,7 @@ fun_declaracao:     tipo_espicificador id
                        $$ = newNode(FunK,1);
                        $$->lineno = lineno;
                        $$->attr.name = savedName;
-                       FunctionsNameInsert(savedName);
+                       InsertFunctionList(&FList,savedName);
                     }
                     OPPAR params CLPAR composto_decl
                     {

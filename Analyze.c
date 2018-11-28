@@ -86,7 +86,20 @@ static void insertNode( TreeNode * t)
 
               break;
               case TypeK:   Attrib = 0; break; // Nada a fazer
-              case ArrIdK:  break; // Nada a fazer
+              case ArrIdK:
+
+              if( st_lookup(t->attr.name) == -1 )     // Procuro a variável na tabela
+              {
+                  temp = hashTable;       // Guardo a hash atual
+                  hashTable = Programa->hashTable;    // Pego a hash Global
+                  // Procuro a variável na hash global
+                  if( st_lookup(t->attr.name) == -1 ){ ErrorType(t,1,EscopoAtual->nameEscopo,EscopoAtual->lineno); }
+                  hashTable = temp; // Atualizo para hash atual
+              }
+                // Considera que a variável já foi declarada, não precisa inserir tipo na tabela (Default)
+                else{ st_insert(t->attr.name, t->lineno, location++, Default); }
+
+              break; // Nada a fazer
               case CallK:  // Tratando Erro tipo 2 e tipo 5
 
               // Chamada de função não declarada

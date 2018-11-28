@@ -105,6 +105,11 @@ static void insertNode( TreeNode * t)
               // Chamada de função não declarada
               Interator = Programa;
               ExpType type;
+              int IO = 0;
+              if( (strcmp(t->attr.name,"input")==0) || (strcmp(t->attr.name,"output")==0))
+              {
+                  IO = 1;
+              }
               while(Interator != NULL)
               {
                   if(strcmp(t->attr.name,Interator->nameEscopo)==0) // Procurando a função invocada na lista de funções
@@ -114,8 +119,10 @@ static void insertNode( TreeNode * t)
                   }
                     else{ Interator = Interator->next; }
               }
-              if(Interator == NULL)
-              { ErrorType(t,5,EscopoAtual->nameEscopo,EscopoAtual->lineno); }
+              if( (Interator == NULL) && (IO == 0) )
+              {
+                  ErrorType(t,5,EscopoAtual->nameEscopo,EscopoAtual->lineno);
+              }
                 else
                 {
                     // Função foi invocada por a, mas retorn void
@@ -190,7 +197,7 @@ void buildSymtab(TreeNode * syntaxTree)
     Init_EscopoGlobal();
     traverse(syntaxTree,insertNode,nullProc);
     if(TemMain==0){ ErrorType(syntaxTree,6,EscopoAtual->nameEscopo,location); }
-    //printSymTab(listing);
+    if(TSymbol == TRUE){ printSymTab(listing); }
 }
 
 void AnalyzeErrosDecl(TreeNode * t)

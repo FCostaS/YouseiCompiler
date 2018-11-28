@@ -67,6 +67,9 @@ typedef struct treeNode {
   ExpType type;
 } TreeNode;
 
+// FLAGS
+extern int TSymbol;
+
 //////////////////////////////////////////////
 // PARSE FUNÇÕES
 TreeNode *parse(void);

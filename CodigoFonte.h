@@ -10,7 +10,7 @@ FILE *listing;
 FILE *code;
 FunctionsProgram FList;
 
-// FLAGS
+// Flags
 int Arvore  = FALSE;
 int TSymbol = TRUE;
 int Lexical = FALSE;
@@ -31,7 +31,7 @@ void RunCompiler(char* codename)
       {
         if(Arvore) // Árvore Sintática
         {
-          printf("Árvore Sintática\n"); printTree(syntax);
+            printTree(syntax);
         }
         buildSymtab(syntax);
       }

@@ -5,7 +5,6 @@
     #include <string.h>
     #define YYSTYPE TreeNode*   /* Definindo tipo do valor semantico como no da arvore sintatica */
 
-    static int savedNumber;
     static char *savedName;     /* for use in assignments */
     static TreeNode *savedTree; /* Arvore Sintatica Final */
 

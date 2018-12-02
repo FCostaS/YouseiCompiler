@@ -88,3 +88,4 @@ Erro tipo 7: O erro tipo 7 achei melhor dividir em dois tipos
 
           7.2 - Tentando declarar uma função que tem nome de variável global
           Busco o nome da função na tabela hash global (Primeiro no da lista encadeada)
+*/

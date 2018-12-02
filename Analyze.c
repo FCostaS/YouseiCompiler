@@ -1,16 +1,25 @@
 #include "Globals.h"
 #include "SymbolTab.h"
 #include "Analyze.h"
-#include "Semantics.h"
+#include "Semantics.h" /* Biblioteca com as mensagens dos tipos de erros */
 
 /* counter for variable memory locations */
 static int location = 0;
+
+/* Attrib = Flag para detectar atribuição, usarei para saber se o token anterior a
+chamada de função foi uma atribuição, se sim e a função for void eu devo emitir
+o erro tipo 2 */
 int Attrib = 0;
 Escopo Interator;
 BucketList *temp;
-int TemMain = 0; // Considera que não existe main
+/* TemMain = Flag para detectar o main no programa | Considera que não existe main
+Se durante a montagem da tabela a função main for encontrada, ela será
+setada para 1, nesse caso, ao fim da monstagem da tabela, se ela continuar 0
+é porque não encontrou (...) */
+int TemMain = 0;
 int iteradorINT;
 
+/* NovoEscopo cria um novo nó para lista encadeada de funções */
 Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
 {
     Escopo new = (Escopo)malloc(sizeof(Escopo));
@@ -30,6 +39,10 @@ Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
 
 void Init_EscopoGlobal()
 {
+      /* Inicio o programa considerando que toda variável antes de uma
+      declaração de função será global, assim que detectar uma nova função,
+      a lista encadeada receberá no novo nó e então as próximas funções irá
+      para tabela específica da tabela dessa função */
       Programa = NovoEscopo(NULL,"Global",Global,0);
       EscopoAtual = Programa;
 }
@@ -130,7 +143,21 @@ static void insertNode( TreeNode * t)
                     {
                         ErrorType(t,2,EscopoAtual->nameEscopo,EscopoAtual->lineno);
                     }
-                    st_insert(t->attr.name, t->lineno, location++, Funct);
+
+                    VarType k;
+                    switch(type)
+                    {
+                        case Void:
+                            k = FunctVoid;
+                        break;
+                        case Integer:
+                            k = FunctInt;
+                        break;
+                        case IntegerArray:
+                            k = FunctIntArray;
+                        break;
+                    }
+                    st_insert(t->attr.name, t->lineno, location++, k);
                 }
 
               break;
@@ -194,11 +221,15 @@ static void nullProc(TreeNode * t)
 
 void buildSymtab(TreeNode * syntaxTree)
 {
-    Init_EscopoGlobal();
-    traverse(syntaxTree,insertNode,nullProc);
+    Init_EscopoGlobal(); /* Inicio a lista encadeada já definindo o primeiro nó como global */
+    traverse(syntaxTree,insertNode,nullProc); /* Peguei do Tiny sem alterar */
     if(TemMain==0){ ErrorType(syntaxTree,6,EscopoAtual->nameEscopo,location); }
     if(TSymbol == TRUE){ printSymTab(listing); }
 }
+
+/* As funções AnalyzeErrosDecl e  AnalyzeErrosDeclArray são as mesmas, com exceção
+da forma que o nome do token é acessado, uma diz respeito ao tratamento do problema
+quando a variável é normal e a outra quando é Array. */
 
 void AnalyzeErrosDecl(TreeNode * t)
 {

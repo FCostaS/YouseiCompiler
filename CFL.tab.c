@@ -1473,7 +1473,7 @@ yyreduce:
                          t->sibling = (yyvsp[0]);
                          (yyval) = (yyvsp[-2]);
                        } else {
-                         (yyval) = (yyvsp[-1]);
+                         (yyval) = (yyvsp[0]);
                        }
                     }
 #line 1480 "CFL.tab.c" /* yacc.c:1646  */

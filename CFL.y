@@ -5,6 +5,7 @@
     #include <string.h>
     #define YYSTYPE TreeNode*   /* Definindo tipo do valor semantico como no da arvore sintatica */
 
+    static int savedNumber;
     static char *savedName;     /* for use in assignments */
     static TreeNode *savedTree; /* Arvore Sintatica Final */
 
@@ -141,7 +142,7 @@ param_lista:        param_lista VIG param
                          t->sibling = $3;
                          $$ = $1;
                        } else {
-                         $$ = $2;
+                         $$ = $3;
                        }
                     }
                     | param

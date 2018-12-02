@@ -24,6 +24,9 @@ typedef struct BucketListRec{
      struct BucketListRec *next;
 }*BucketList;
 
+/* Aqui (EscopoListRec) eu guardo as informações de cada função e a tabela com as variáveis
+que estão nessa função, deixar isso bem separado (funções e variáveis) facilitou na hora
+de tratar os erros semânticos */
 typedef struct EscopoListRec{
     char *nameEscopo;
     int typeEscopo,lineno;
@@ -31,11 +34,20 @@ typedef struct EscopoListRec{
     BucketList *hashTable; /* Tabela Hash */
 }*Escopo;
 
+/* Resolvi convertar hashTable para ponteiro para não precisar modificar as funções
+de inserção e busca do Tiny, dessa forma, quando um novo nó (escopo) da lista encadeada
+for alocado, hashTable vai começar a apontar para tabela dessa função. Na verdade, montei
+uma tabela para cada função, o que implicou em inserir um while na função de impressão da tabela
+que peguei do Tiny */
 BucketList *hashTable;
+
+/* Os ponteiros Programa e EscopoAtual são da lista encadeada que monstarei no decorrer da montagem
+da tabela, Programa aponta para o início da lista e EscopoAtual para o final da lista */
 Escopo Programa, EscopoAtual;
 
 // Funções
-int hash ( char *key );
-void printSymTab(FILE * listing);
-int st_lookup ( char * name );
-void st_insert( char * name, int lineno, int loc ,VarType var);
+int hash ( char *key ); /* Peguei do Tiny sem modificar */
+void printSymTab(FILE * listing); /* Coloquei um while para imprimir uma tabela para cada escopo */
+int st_lookup ( char * name ); /* Peguei do Tiny sem modificar */
+void st_insert( char * name, int lineno, int loc ,VarType var); /* Peguei do Tiny sem modificar,
+                                                                  apenas adicionei informações acerca da função */

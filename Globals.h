@@ -28,12 +28,13 @@ extern int lineno;    /* Indica o número da linha daquele código */
 extern int Error;     /* Flag que indica se houve algum erro */
 extern int Lexical;
 
+typedef enum { Void, Integer, IntegerArray, Global, GlobalArray } ExpType; /* ExpType chega o tipo de expressão da variavel */
+typedef enum { Int, IntArray, FunctInt, FunctVoid, FunctIntArray, Default} VarType;
 typedef enum { StmtK, ExpK, DeclK } NodeKind;
 typedef enum { IfK, WhileK, AssignK, CompoundK, ReturnK } StmtKind;
 typedef enum { OpK, ConstK, IdK, TypeK, ArrIdK, CallK, CalcK } ExpKind;
 typedef enum { VarK, FunK, ArrVarK, ArrParamK, ParamK } DeclKind; /* DeclKind chega o tipo de declaracao */
-typedef enum { Void, Integer, IntegerArray, Global, GlobalArray } ExpType; /* ExpType chega o tipo de expressão da variavel */
-typedef enum { Int, IntArray, Funct, Default} VarType;
+
 
 #define MAXCHILDREN 3
 

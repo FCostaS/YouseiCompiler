@@ -17,6 +17,8 @@ int hash ( char *key )
     return temp;
 }
 
+/* TypeEscopo codifica o enum do Globals.h para qualquer variável na hora de
+imprimir a tabela de símbolos */
 char *TypeEscopo(ExpType Type)
 {
     switch(Type)
@@ -28,14 +30,19 @@ char *TypeEscopo(ExpType Type)
     }
 }
 
+/* TypeVariable codifica  o enum VarType definido no Globals.h para
+impressão na tabela hash */
 char *TypeVariable( VarType TYPE)
 {
     switch(TYPE)
     {
-        case Int:           return "Integer";
-        case IntArray:      return "Integer Array";
-        case Funct:         return "Function";
-        case Default:       printf("Você esqueceu de definir mais tipos\n");
+        case Int:             return "Integer";
+        case IntArray:        return "Integer Array";
+        case FunctInt:        return "Function Int";
+        case FunctIntArray:   return "Function Int Array";
+        case FunctVoid:       return "Function Void";
+        case Default:         return "Fabs, Você esqueceu de definir mais tipos";
+        default: return "Function Void";
     }
 }
 

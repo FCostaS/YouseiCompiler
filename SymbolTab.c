@@ -42,7 +42,7 @@ char *TypeVariable( VarType TYPE)
         case FunctIntArray:   return "Function Int Array";
         case FunctVoid:       return "Function Void";
         case Default:         return "Fabs, Você esqueceu de definir mais tipos";
-        default: return "Function Void";
+        default: return "Function Int";
     }
 }
 

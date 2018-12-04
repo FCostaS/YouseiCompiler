@@ -8,5 +8,4 @@ My compiler for discipline Compiladores.
 
 # Problemas para resolver posteriormente
 
-- x = a sendo a um vetor.
-- se i é maior que o tamanho do vetor
+- Verificação da quantidade de parâmetros na chamada da função.

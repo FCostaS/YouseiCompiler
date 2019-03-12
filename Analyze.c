@@ -173,25 +173,25 @@ static void insertNode( TreeNode * t)
           switch (t->kind.decl)
           {
               case ArrParamK:
-                    AnalyzeErrosDecl(t);
+                    AnalyzeErrosDecl(t,0);
                     st_insert(t->attr.name, t->lineno,location++, IntArray);
               break;
 
               case ParamK:
                     if (t->attr.name != NULL)
                     {
-                        AnalyzeErrosDecl(t);
+                        AnalyzeErrosDecl(t,0);
                         st_insert(t->attr.name, t->lineno, location++, Int);
                     }
               break;
 
               case ArrVarK: // Tipo da declarada é void | Variável já foi declarada
-                    AnalyzeErrosDeclArray(t);
+                    AnalyzeErrosDecl(t,1);
                     st_insert(t->attr.arr.name, t->lineno, location++, IntArray);
               break;
 
               case VarK: // Tratando erro tipo 3 e 4 e 7.1
-                    AnalyzeErrosDecl(t);
+                    AnalyzeErrosDecl(t,0);
                     st_insert(t->attr.name, t->lineno, location++, Int);
               break;
 
@@ -231,49 +231,46 @@ void buildSymtab(TreeNode * syntaxTree)
 da forma que o nome do token é acessado, uma diz respeito ao tratamento do problema
 quando a variável é normal e a outra quando é Array. */
 
-void AnalyzeErrosDecl(TreeNode * t)
+void AnalyzeErrosDecl(TreeNode * t,int TYPE)
 {
       // Tentando declarar variável como void
       if (t->child[0]->type == Void)
       { ErrorType(t,3,EscopoAtual->nameEscopo,EscopoAtual->lineno); }
 
       // Tentando redeclarar uma variável
-      if( st_lookup(t->attr.name) != -1 )
+      if( TYPE == 1 ) // É tipo array
       {
-          ErrorType(t,4,EscopoAtual->nameEscopo,location);
-          //break;
-      }
-
-      // Tentando declarar uma variável que já recebeu nome de função
-      for(iteradorINT=0;iteradorINT < FList.iterator;iteradorINT++)
-      {
-          if(strcmp(t->attr.name,FList.ListFunctions[iteradorINT])==0)
+          if( st_lookup(t->attr.arr.name) != -1 ) // Se eu encontra  a variável na tabela
           {
-              ErrorType(t,7,t->attr.name,t->lineno);
+              ErrorType(t,4,EscopoAtual->nameEscopo,location);
+          }
+
+          // Tentando declarar uma variável que já recebeu nome de função
+          for(iteradorINT=0;iteradorINT < FList.iterator;iteradorINT++)
+          {
+              if(strcmp(t->attr.arr.name,FList.ListFunctions[iteradorINT])==0)
+              {
+                  ErrorType(t,7,t->attr.arr.name,t->lineno);
+              }
           }
       }
-}
-
-void AnalyzeErrosDeclArray(TreeNode * t)
-{
-      // Tentando declarar variável como void
-      if (t->child[0]->type == Void)
-      { ErrorType(t,3,EscopoAtual->nameEscopo,EscopoAtual->lineno); }
-
-      // Tentando redeclarar uma variável
-      if( st_lookup(t->attr.arr.name) != -1 ) // Se eu encontra  a variável na tabela
+      else
       {
-          ErrorType(t,4,EscopoAtual->nameEscopo,location);
-          //break;
+            // Tentando redeclarar uma variável
+            if( st_lookup(t->attr.name) != -1 )
+            {
+                ErrorType(t,4,EscopoAtual->nameEscopo,location);
+                //break;
+            }
+
+            // Tentando declarar uma variável que já recebeu nome de função
+            for(iteradorINT=0;iteradorINT < FList.iterator;iteradorINT++)
+            {
+                if(strcmp(t->attr.name,FList.ListFunctions[iteradorINT])==0)
+                {
+                    ErrorType(t,7,t->attr.name,t->lineno);
+                }
+            }
       }
 
-      // Tentando declarar uma variável que já recebeu nome de função
-      for(iteradorINT=0;iteradorINT < FList.iterator;iteradorINT++)
-      {
-          if(strcmp(t->attr.arr.name,FList.ListFunctions[iteradorINT])==0)
-          {
-              ErrorType(t,7,t->attr.arr.name,t->lineno);
-          }
-      }
 }
-//if (t->attr.name != NULL) printf("%s %s\n",t->attr.name);

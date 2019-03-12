@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "Globals.h"
 #include "Analyze.h"
+#include "cgen.h"
 
 // Alocando variáveis globais
 int lineno = 0;
@@ -11,9 +12,10 @@ FILE *code;
 FunctionsProgram FList;
 
 // Flags
-int Arvore  = TRUE;
-int TSymbol = TRUE;
-int Lexical = TRUE;
+int Arvore  = FALSE;
+int TSymbol = FALSE;
+int Lexical = FALSE;
+int Intermediary = TRUE;
 
 // Funcoes
 void RunCompiler(char* codename);
@@ -34,6 +36,7 @@ void RunCompiler(char* codename)
             printTree(syntax);
         }
         buildSymtab(syntax);
+        codeGen(syntax,codename);
       }
       CloseCode();
 }

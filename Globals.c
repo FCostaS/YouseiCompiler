@@ -17,7 +17,7 @@ void printToken( TokenType token, const char* tokenString )
     case INT:
     case RETURN:
     case VOID:
-    case WHILE:       fprintf(listing, "reserved word: %s\n",tokenString); break;
+    case WHILE:       fprintf(listing, "Reserved Word: %s\n",tokenString); break;
     case PLUS:        fprintf(listing, "+\n");  break;
     case MINUS:       fprintf(listing, "-\n");  break;
     case STAR:        fprintf(listing, "*\n");  break;
@@ -53,41 +53,22 @@ static int indentno = 0;
 static void printSpaces(void) {
   int i;
   for (i=0;i<indentno;i++)
-    fprintf(listing," ");
+    fprintf(listing,"_");
 }
 
 /* printType print types of funcions and variables */
-void printTypes(TreeNode* tree)
+void Types(TreeNode* tree)
 {
-  if (tree->child[0] != NULL) {
-    switch (tree->child[0]->type)
-    {
-      case Integer:
-        fprintf(listing,"int");
-        break;
-      case Void:
-        fprintf(listing,"void");
-        break;
-      case IntegerArray:
-        fprintf(listing,"int array");
-        break;
-      default: return;
-    }
-  }
-  else
+  ExpType TYPE;
+  if(tree->child[0] != NULL){ TYPE = tree->child[0]->type; }
+  else{ TYPE = tree->type; }
+
+  switch (TYPE)
   {
-    switch (tree->type) {
-      case Integer:
-        fprintf(listing,"int");
-        break;
-      case Void:
-        fprintf(listing,"void");
-        break;
-      case IntegerArray:
-        fprintf(listing,"int array");
-        break;
-      default: return;
-    }
+      case Integer: fprintf(listing,"int"); break;
+      case Void: fprintf(listing,"void"); break;
+      case IntegerArray: fprintf(listing,"int array"); break;
+      default: printf("Esqueceu de mim!\n"); break;
   }
 }
 
@@ -109,7 +90,7 @@ void printTree( TreeNode * tree )
           fprintf(listing, "While\n");
           break;
         case CompoundK:
-          fprintf(listing, "Compound statement\n");
+          fprintf(listing, "Statement Compound\n");
           break;
         case ReturnK:
           fprintf(listing, "Return\n");
@@ -118,7 +99,7 @@ void printTree( TreeNode * tree )
           fprintf(listing, "Assign\n");
           break;
         default:
-          fprintf(listing, "Unknown stmtNode kind\n");
+          fprintf(listing, "Unknown Stmt\n");
           break;
         }
     }
@@ -127,18 +108,18 @@ void printTree( TreeNode * tree )
       if (tree->kind.exp != TypeK) printSpaces();
       switch (tree->kind.exp) {
         case OpK:
-          fprintf(listing,"Op: ");
+          fprintf(listing,"Operation: ");
           printToken(tree->attr.op, "\0");
           break;
         case ConstK:
-          fprintf(listing,"Const: %d\n",tree->attr.val);
+          fprintf(listing,"Constant: %d\n",tree->attr.val);
           break;
         case IdK:
           fprintf(listing,"Id: %s\n",tree->attr.name);
           break;
         case TypeK: break;
         case ArrIdK:
-          fprintf(listing,"ArrId \n");
+          fprintf(listing,"Id Array\n");
           break;
         case CallK:
           fprintf(listing, "Call Function : %s\n", tree->attr.name);
@@ -148,7 +129,7 @@ void printTree( TreeNode * tree )
           printToken(tree->child[1]->attr.op, "\0");
           break;
         default:
-          fprintf(listing,"Unknown ExpNode kind\n");
+          fprintf(listing,"Unknown Exp\n");
           break;
       }
     }
@@ -158,17 +139,17 @@ void printTree( TreeNode * tree )
       switch (tree->kind.decl) {
         case FunK :
           fprintf(listing, "Function Declaration:  ");
-          printTypes(tree);
+          Types(tree);
           fprintf(listing, " %s()\n", tree->attr.name);
           break;
         case VarK :
           fprintf(listing, "Variable Declaration:  ");
-          printTypes(tree);
+          Types(tree);
           fprintf(listing, " %s;\n", tree->attr.name);
           break;
         case ArrVarK :
           fprintf(listing, "Array Variable Declaration:  ");
-          printTypes(tree);
+          Types(tree);
           fprintf(listing," %s[%d];\n", tree->attr.arr.name, tree->attr.arr.size);
           break;
         case ArrParamK :
@@ -176,7 +157,7 @@ void printTree( TreeNode * tree )
           break;
         case ParamK :
           fprintf(listing, "Parameter: ");
-          printTypes(tree);
+          Types(tree);
           if (tree->attr.name != NULL) {
             fprintf(listing, " %s\n", tree->attr.name);
           } else {
@@ -184,11 +165,11 @@ void printTree( TreeNode * tree )
           }
           break;
         default:
-          fprintf(listing, "Unknown Declaration\n");
+          fprintf(listing, "Unknown Decl\n");
           break;
         }
       }
-    else fprintf(listing,"Unknown node kind\n");
+    else fprintf(listing,"Unknown\n");
     for (i=0;i<MAXCHILDREN;i++) if (tree->child[i] != NULL) printTree(tree->child[i]);
     tree = tree->sibling;
   }

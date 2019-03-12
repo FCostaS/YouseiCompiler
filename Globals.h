@@ -27,6 +27,7 @@ extern FILE* code;    /* code text file for TM simulator */
 extern int lineno;    /* Indica o número da linha daquele código */
 extern int Error;     /* Flag que indica se houve algum erro */
 extern int Lexical;
+extern int Intermediary;
 
 typedef enum { Void, Integer, IntegerArray, Global, GlobalArray } ExpType; /* ExpType chega o tipo de expressão da variavel */
 typedef enum { Int, IntArray, FunctInt, FunctVoid, FunctIntArray, Default} VarType;

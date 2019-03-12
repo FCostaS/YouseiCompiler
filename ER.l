@@ -8,10 +8,24 @@ DIGITO		[0-9]
 ID		    [a-zA-Z0-9]
 LETRA 		[a-zA-Z]
 COMENTARIO	[^*/]*
-WHITESPACE	[ \t]
+WHITESPACE	[ \t]+
 SYMBOLERROR [.]
 
 %%
+"\n"													{lineno++;}
+{WHITESPACE}+                 {}
+"/*"                          { char c;
+                                while(1)
+                                { c = input();
+                                  if (c == EOF) break;
+                                  if (c == '\n') lineno++;
+                                  if (c == '*')
+                                  {
+                                    c = input();
+                                    if (c == '/') break;
+                                  }
+                                }
+                              }
 else			        						{return ELSE;}
 if				            				{return IF;}
 int				            				{return INT;}
@@ -40,9 +54,6 @@ while			        						{return WHILE;}
 {SYMBOLERROR}                 {return ERRO;}
 {LETRA}({LETRA}|{DIGITO})*		{return ID;}
 {DIGITO}+			        				{return NUM;}
-"\n"													{lineno++;}
-{WHITESPACE}+
-"/*"{COMENTARIO}"*/"
 %%
 
 int yywrap();

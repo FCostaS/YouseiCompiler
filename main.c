@@ -2,5 +2,5 @@
 
 int main()
 {
-    RunCompiler("CMinus.txt");
+    RunCompiler("gcd.txt");
 }

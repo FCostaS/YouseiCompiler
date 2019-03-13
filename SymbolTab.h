@@ -29,7 +29,7 @@ que estão nessa função, deixar isso bem separado (funções e variáveis) fac
 de tratar os erros semânticos */
 typedef struct EscopoListRec{
     char *nameEscopo;
-    int typeEscopo,lineno;
+    int typeEscopo,lineno,Parameters;
     struct EscopoListRec *next;
     BucketList *hashTable; /* Tabela Hash */
 }*Escopo;

@@ -2,69 +2,73 @@
 #include "SymbolTab.h"
 #include "cgen.h"
 
-static void cGen( TreeNode * tree);
+int i;
+static int MemoryIndex = 0;
+static void cGen( TreeNode * tree , TreeNode * pai);
 
 void emitComment( char * c )
 {
-    if (Intermediary)
-    {
-      fprintf(listing,"* %s\n",c);
-    }
+    if (Intermediary){ fprintf(listing,"* %s\n",c); }
 }
 
-void emitCommentFunk( char * c )
+static void genExpK( TreeNode * t, TreeNode * tpai)
 {
-    if (Intermediary)
-    {
-      fprintf(listing,"%s:\n",c);
-    }
-}
-
-
-static void genExpK( TreeNode * t)
-{
-    int loc,i;
+    int loc,args;
     TreeNode * p1, * p2;
     switch (t->kind.exp)
     {
         case OpK:
 
-         emitComment("-> Op");
          p1 = t->child[0];
          p2 = t->child[1];
-         cGen(p1);
-         cGen(p2);
+         cGen(p1,t);
+         cGen(p2,t);
 
          switch (t->attr.op)
          {
-           case PLUS : emitComment("ADD"); break;
-           case MINUS: emitComment("SUB"); break;
-           case STAR : emitComment("MUL"); break;
-           case BAR  : emitComment("DIV"); break;
+           case PLUS : printf("* ADD"); break;
+           case MINUS: printf("* SUB"); break;
+           case STAR : printf("* MUL"); break;
+           case BAR  : printf("* DIV"); break;
+           case SLT  : printf("* SLT"); break;
+           case SLTE : printf("* SLTE"); break;
+           case SBT  : printf("* SBT"); break;
+           case SBTE : printf("* SBTE"); break;
+           case EQUAL: printf("* EQUAL"); break;
+           case DIFF : printf("* DIFF"); break;
          }
 
         break;
 
         case ConstK:
-             emitComment("<- ConstK") ;
         break;
 
         case IdK:
 
-        loc = st_lookup(t->attr.name);
-        emitComment(t->attr.name) ;
+        //loc = st_lookup(t->attr.name);
+        //printf("%s\n",t->attr.name);
 
         break;
-        case TypeK:   emitComment("<- TypeK"); for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); } break;
-        case ArrIdK:  emitComment("<- ArrIdK"); for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]);} break;
-        case CallK:   for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); } printf("* Call %s\n",t->attr.name);  break;
-        case CalcK:   for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); } break;
+        case TypeK:   break;
+        case ArrIdK:  break;
+        case CallK:
+
+                args = 0;
+                for(p1=t->child[0];p1!=NULL;p1 = p1->sibling)
+                {
+                    genExpK(p1,t);
+                    args++;
+                }
+                printf("Call %s(%d)\n",t->attr.name,args);
+
+        break;
+        case CalcK: break;
         default: printf("Você me esqueceu parça!\n"); break;
     }
 
 }
 
-static void genStmtK( TreeNode * t)
+static void genStmtK( TreeNode * t, TreeNode * tpai)
 {
       int loc,i;
       TreeNode *p1,*p2,*p3;
@@ -72,54 +76,25 @@ static void genStmtK( TreeNode * t)
 
       switch (t->kind.stmt)
       {
-          case IfK:
-              p1 = t->child[0] ;
-              p2 = t->child[1] ;
-              p3 = t->child[2] ;
-
-              cGen(p1);
-
-              //savedLoc1 = emitSkip(1) ;
-              emitComment("IF");
-
-              /* recurse on then part */
-
-              cGen(p2);
-              //savedLoc2 = emitSkip(1) ;
-              emitComment("ELSE");
-              //currentLoc = emitSkip(0) ;
-              //emitBackup(savedLoc1) ;
-              //emitRM_Abs("JEQ",ac,currentLoc,"if: jmp to else");
-              //emitRestore() ;
-
-              cGen(p3);
-              //currentLoc = emitSkip(0) ;
-              //emitBackup(savedLoc2) ;
-              //emitRM_Abs("LDA",pc,currentLoc,"jmp to end") ;
-              //emitRestore() ;
-          break;
-          case WhileK:    break;
+          case IfK:         break;
+          case WhileK:      break;
           case AssignK:
 
-          p1 = t->child[0]; p2 = t->child[1];
-          cGen(p1); cGen(p2);
-          printf("* %s = %s\n",p1->attr.name,p2->attr.name);
+          p1 = t->child[0];
+          p2 = t->child[1];
+
+          genExpK(p1,t);
+
+          cGen(p2,t);
 
           break;
-          case CompoundK:
-                for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); }
-          break;
-          case ReturnK:
-
-            for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); }
-            emitComment("JR");
-
-          break; // Invoca Jump Register
+          case CompoundK:   for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i],t); } break;
+          case ReturnK:     break; // Invoca Jump Register
           default: printf("Você me esqueceu parça!\n"); break;
       }
 }
 
-static void genDeclK( TreeNode * t)
+static void genDeclK( TreeNode * t, TreeNode * tpai)
 {
       switch (t->kind.decl)
       {
@@ -128,34 +103,30 @@ static void genDeclK( TreeNode * t)
             case ArrVarK:    break; // Util na atribuição de Registradores Temporários
             case VarK:       break; // Util na atribuição de Registradores Temporários
             case FunK:              // Lista as funções presentes no programa
-                emitCommentFunk(t->attr.name);
-                int i;
-                for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); }
+                printf("%s:\n",t->attr.name);
+                for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i],t); }
             break;
             default: printf("Você me esqueceu parça!\n"); break;
       }
 }
 
-static void cGen( TreeNode * tree)
+static void cGen( TreeNode * tree , TreeNode * pai)
 {
   if (tree != NULL)
   {
     switch (tree->nodekind) {
       case StmtK:
-        genStmtK(tree);
+        genStmtK(tree,pai);
         break;
       case ExpK:
-        genExpK(tree);
+        genExpK(tree,pai);
         break;
       case DeclK:
-        genDeclK(tree);
+        genDeclK(tree,pai);
         break;
     }
-    cGen(tree->sibling);
+    cGen(tree->sibling,tree);
   }
 }
 
-void codeGen(TreeNode * syntaxTree, char * codefile)
-{
-    cGen(syntaxTree);
-}
+void codeGen(TreeNode * syntaxTree, char * codefile){ cGen(syntaxTree,syntaxTree); }

@@ -11,9 +11,9 @@ FILE *code;
 FunctionsProgram FList;
 
 // Flags
-int Arvore  = TRUE;
-int TSymbol = FALSE;
 int Lexical = FALSE;
+int Arvore  = TRUE;
+int TSymbol = TRUE;
 
 // Funcoes
 void RunCompiler(char* codename);
@@ -25,7 +25,7 @@ void RunCompiler(char* codename)
 {
       OpenCode(codename);
       listing = stdout;
-      StartFunctionList(&FList);
+
       TreeNode *syntax = parse();
       if(Error == FALSE) // Consegui montar a árvore
       {

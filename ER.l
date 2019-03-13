@@ -12,6 +12,19 @@ WHITESPACE	[ \t]
 SYMBOLERROR [.]
 
 %%
+{WHITESPACE}+                 {}
+"/*"                          { char c;
+                                while(1)
+                                { c = input();
+                                  if (c == EOF) break;
+                                  if (c == '\n') lineno++;
+                                  if (c == '*')
+                                  {
+                                    c = input();
+                                    if (c == '/') break;
+                                  }
+                                }
+                              }
 else			        						{return ELSE;}
 if				            				{return IF;}
 int				            				{return INT;}
@@ -41,8 +54,6 @@ while			        						{return WHILE;}
 {LETRA}({LETRA}|{DIGITO})*		{return ID;}
 {DIGITO}+			        				{return NUM;}
 "\n"													{lineno++;}
-{WHITESPACE}+
-"/*"{COMENTARIO}"*/"
 %%
 
 int yywrap();

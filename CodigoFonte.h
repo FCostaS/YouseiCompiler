@@ -12,8 +12,8 @@ FunctionsProgram FList;
 
 // Flags
 int Arvore  = TRUE;
-int TSymbol = TRUE;
-int Lexical = TRUE;
+int TSymbol = FALSE;
+int Lexical = FALSE;
 
 // Funcoes
 void RunCompiler(char* codename);

@@ -33,7 +33,6 @@ Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
     new->typeEscopo = type;
     new->lineno = lineno;
     new->next = NULL;
-    new->Parameters = 0;
     location = 0;
     return new;
 }
@@ -207,7 +206,6 @@ static void insertNode( TreeNode * t)
 
                   EscopoAtual = NovoEscopo(EscopoAtual,t->attr.name,t->child[0]->type,t->lineno);
                   if( strcmp(t->attr.name,"main") == 0){ TemMain = 1; }
-
               break;
           }
       }
@@ -274,5 +272,4 @@ void AnalyzeErrosDecl(TreeNode * t,int TYPE)
                 }
             }
       }
-
 }

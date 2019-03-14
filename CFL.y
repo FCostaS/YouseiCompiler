@@ -112,7 +112,6 @@ fun_declaracao:     tipo_espicificador id
                        $$ = newNode(FunK,1);
                        $$->lineno = lineno;
                        $$->attr.name = savedName;
-                       InsertFunctionList(&FList,savedName);
                     }
                     OPPAR params CLPAR composto_decl
                     {

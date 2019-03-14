@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "Globals.h"
 #include "Analyze.h"
-#include "cgen.h"
+#include "CGen.h"
 
 // Alocando variáveis globais
 int lineno = 0;

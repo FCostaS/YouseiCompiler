@@ -1,13 +1,5 @@
 #include "Globals.h"
 
-void StartFunctionList(FunctionsProgram *F){ F->iterator = 0; }
-
-void InsertFunctionList(FunctionsProgram *F,char *name)
-{
-    strcpy(F->ListFunctions[F->iterator],name);
-    F->iterator++;
-}
-
 void printToken( TokenType token, const char* tokenString )
 {
   switch (token)
@@ -109,7 +101,7 @@ void printTree( TreeNode * tree )
           fprintf(listing, "While\n");
           break;
         case CompoundK:
-          fprintf(listing, "Compound statement\n");
+          fprintf(listing, "Function Composition\n");
           break;
         case ReturnK:
           fprintf(listing, "Return\n");
@@ -131,17 +123,17 @@ void printTree( TreeNode * tree )
           printToken(tree->attr.op, "\0");
           break;
         case ConstK:
-          fprintf(listing,"Const: %d\n",tree->attr.val);
+          fprintf(listing,"Constant: %d\n",tree->attr.val);
           break;
         case IdK:
-          fprintf(listing,"Id: %s\n",tree->attr.name);
+          fprintf(listing,"ID: %s\n",tree->attr.name);
           break;
         case TypeK: break;
         case ArrIdK:
-          fprintf(listing,"ArrId \n");
+          fprintf(listing,"Array ID \n");
           break;
         case CallK:
-          fprintf(listing, "Call Function : %s\n", tree->attr.name);
+          fprintf(listing, "Call Function: %s\n", tree->attr.name);
           break;
         case CalcK:
           fprintf(listing, "Operator : ");

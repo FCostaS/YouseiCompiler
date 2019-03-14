@@ -90,5 +90,3 @@ typedef struct FunctionStruct{
     int iterator;
 }FunctionsProgram;
 extern FunctionsProgram FList;
-void StartFunctionList(FunctionsProgram *F);
-void InsertFunctionList(FunctionsProgram *F,char *name);

@@ -1,1 +1,0 @@
-char * copyString(char * s);

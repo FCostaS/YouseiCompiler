@@ -12,20 +12,12 @@ Stack MyStack;
 static void cGen( TreeNode * tree);
 static void genExpK( TreeNode * t);
 
-char *ObterID(TreeNode *t)
+/*char *ObterID(TreeNode *t)
 {
     char *buffer;
     switch (t->kind.exp)
     {
-      case IdK:
-          return t->attr.name;
-      break;
 
-      case ConstK:
-          buffer = (char*)malloc(5*sizeof(char));
-          sprintf( buffer, "%d", t->attr.val );
-          return buffer;
-      break;
 
       case CalcK:
           buffer = (char*)malloc(5*sizeof(char));
@@ -35,9 +27,9 @@ char *ObterID(TreeNode *t)
           return buffer;
       break;
     }
-}
+}*/
 
-char *ObterOP(TreeNode *tree)
+char *StringOperation(TreeNode *tree)
 {
     char *buffer;
     buffer = (char*)malloc(5*sizeof(char));
@@ -57,10 +49,33 @@ char *ObterOP(TreeNode *tree)
               case EQUAL: sprintf( buffer, "=="); return buffer;
               case DIFF : sprintf( buffer, "!="); return buffer;
         }
-        break;
-        default: printf("other OpK\n");
-        return buffer;
+       break;
+       case IdK:
+           return tree->attr.name;
+       break;
+
+       case ConstK:
+           buffer = (char*)malloc(5*sizeof(char));
+           sprintf( buffer, "%d", tree->attr.val );
+           return buffer;
+       break;
+
+       default: return buffer;
     }
+}
+
+void CalcGen(TreeNode *t)
+{
+      TreeNode *p1,*p2,*p3;
+      char *A,*B,*C;
+      p1 = t->child[0];
+      p2 = t->child[1];
+      p3 = t->child[2];
+
+      if(p1->attr.op != CalcK){ A = StringOperation(p1); }
+      B = StringOperation(p2);
+      if(p3->attr.op != CalcK){ C = StringOperation(p3); }
+      printf("%s %s %s\n",A,B,C);
 }
 
 static void genExpK( TreeNode * t)
@@ -84,25 +99,13 @@ static void genExpK( TreeNode * t)
 
         case TypeK:   break;
         case ArrIdK:  break;
-        case CallK:
+        case CallK:   // Chamada de Função (Análise de Argumentos da Função)
                 args = 0;
-                for(p1=t->child[0];p1!=NULL;p1 = p1->sibling){ cGen(p1); args++; }
+                for(p1=t->child[0];p1!=NULL;p1 = p1->sibling)
+                { cGen(p1); args++; }
         break;
         case CalcK:
-
-        lockStack(&MyStack);
-        A = ObterID(t->child[0]);
-        B = ObterOP(t->child[1]);
-        C = ObterID(t->child[2]);
-        UnlockStack(&MyStack);
-
-        if(A!=NULL && B!=NULL && C!=NULL)
-        {
-            printf("%d <- %s %s %s\n",MyStack.Reg[MyStack.top],A,B,C);
-        }
-        //free(A); free(B); free(C);
-        Pop(&MyStack);
-
+              CalcGen(t);
         break;
         default: printf("Você me esqueceu parça exp!\n"); break;
     }
@@ -132,8 +135,13 @@ static void genStmtK( TreeNode * tree)
 
           break;
           case WhileK:      break;
-          case AssignK:     for (i=0; i < MAXCHILDREN; i++){ cGen(tree->child[i]); } break;
-          case CompoundK:   for (i=0; i < MAXCHILDREN; i++){ cGen(tree->child[i]); } break;
+          case AssignK:     break;
+          case CompoundK:
+                  for (i=0; i < MAXCHILDREN; i++)
+                  {
+                      cGen(tree->child[i]);
+                  }
+          break;
           case ReturnK:
                   cGen(tree->child[0]); // Invoca Jump Register
           break;

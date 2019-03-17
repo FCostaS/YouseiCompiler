@@ -6,11 +6,12 @@
 #include "CodeGeass.h"
 
 int i;
-static int tmpOffset = 0;
 Stack MyStack;
 
 static void cGen( TreeNode * tree);
 static void genExpK( TreeNode * t);
+char *StringOperation(TreeNode *tree);
+void CalcGen(TreeNode *t);
 
 /*char *ObterID(TreeNode *t)
 {
@@ -60,7 +61,17 @@ char *StringOperation(TreeNode *tree)
            return buffer;
        break;
 
-       default: return buffer;
+       case CalcK:
+           CalcGen(tree);
+           buffer = (char*)malloc(5*sizeof(char));
+           sprintf( buffer, "%d",Reg);
+           Reg--;
+           return buffer;
+       break;
+
+       default:
+        printf("Default StringOperation\n");
+       return buffer;
     }
 }
 
@@ -72,10 +83,11 @@ void CalcGen(TreeNode *t)
       p2 = t->child[1];
       p3 = t->child[2];
 
-      if(p1->attr.op != CalcK){ A = StringOperation(p1); }
+      A = StringOperation(p1);
       B = StringOperation(p2);
-      if(p3->attr.op != CalcK){ C = StringOperation(p3); }
-      printf("%s %s %s\n",A,B,C);
+      C = StringOperation(p3);
+
+      printf("%d <- %s %s %s\n",Reg,A,B,C);
 }
 
 static void genExpK( TreeNode * t)
@@ -101,11 +113,13 @@ static void genExpK( TreeNode * t)
         case ArrIdK:  break;
         case CallK:   // Chamada de Função (Análise de Argumentos da Função)
                 args = 0;
-                for(p1=t->child[0];p1!=NULL;p1 = p1->sibling)
-                { cGen(p1); args++; }
+                for(p1=t->child[0];p1!=NULL;p1 = p1->sibling) { genExpK(p1); args++; }
         break;
         case CalcK:
-              CalcGen(t);
+          // 
+          CalcGen(t);
+          Reg--;
+          // Devolver todos os últimos registradores anterior ao último usado
         break;
         default: printf("Você me esqueceu parça exp!\n"); break;
     }

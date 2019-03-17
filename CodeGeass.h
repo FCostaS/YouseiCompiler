@@ -5,6 +5,7 @@ typedef struct{
     int top;
     int block;
 }Stack;
+int Reg = NReg;
 
 void StartStack(Stack *MyStack);
 void BlockStack(Stack *MyStack);

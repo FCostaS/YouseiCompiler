@@ -93,14 +93,13 @@ void printSymTab(FILE * listing)
   while(index!=NULL)
   {
       int i;
-      fprintf(listing,"Function: %s Type: %s Line: %d\n",index->nameEscopo,TypeEscopo(index->typeEscopo),index->lineno);
+      BucketList l;
+      fprintf(listing,"Function: '%s' Type: '%s' Parameters: '%d' Line: '%d'\n",index->nameEscopo,TypeEscopo(index->typeEscopo),index->param,index->lineno);
       fprintf(listing,"Variable Name  Type Variable  Location   Line Numbers\n");
       fprintf(listing,"-------------  -------------  --------   ------------\n");
-      for (i=0;i<SIZE;++i)
+      for (i=1;i<SIZE;++i)
       {
-        if (index->hashTable[i] != NULL)
-        {
-          BucketList l = index->hashTable[i];
+         l = index->hashTable[i];
           while (l != NULL)
           {
             LineList t = l->lines;
@@ -114,7 +113,6 @@ void printSymTab(FILE * listing)
             fprintf(listing,"\n");
             l = l->next;
           }
-        }
       }
       fprintf(listing,"\n");
       index = index->next;

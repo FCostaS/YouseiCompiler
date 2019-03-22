@@ -5,6 +5,7 @@
 
 /* counter for variable memory locations */
 static int location = 0;
+static int Parameters = 0;
 
 /* Attrib = Flag para detectar atribuição, usarei para saber se o token anterior a
 chamada de função foi uma atribuição, se sim e a função for void eu devo emitir
@@ -32,6 +33,7 @@ Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
     new->nameEscopo = copyString(name);
     new->typeEscopo = type;
     new->lineno = lineno;
+    new->param = 0;
     new->next = NULL;
     //location = 0;
     return new;
@@ -72,7 +74,7 @@ static void insertNode( TreeNode * t)
               case IfK:       Attrib = 0; break; // Nada a fazer
               case WhileK:    Attrib = 0; break; // Nada a fazer
               case AssignK:   Attrib = 1; break; // Nada a fazer
-              case CompoundK: Attrib = 0; break; // Nada a fazer
+              case CompoundK: Attrib = 0; EscopoAtual->param = Parameters; break; // Nada a fazer
               case ReturnK:   Attrib = 0; break; // Nada a fazer
           }
       }
@@ -183,14 +185,16 @@ static void insertNode( TreeNode * t)
           switch (t->kind.decl)
           {
               case ArrParamK:
+                    Parameters++;
                     AnalyzeErrosDecl(t,0);
                     st_insert(t->attr.name, t->lineno,location, IntArray);
                     location++;
               break;
 
               case ParamK:
-                    if (t->attr.name != NULL)
+                    if (t->attr.name != NULL) /* Impede verificação de no void */
                     {
+                        Parameters++;
                         AnalyzeErrosDecl(t,0);
                         st_insert(t->attr.name, t->lineno, location, Int);
                         location++;
@@ -210,6 +214,7 @@ static void insertNode( TreeNode * t)
               break;
 
               case FunK: // Tratando erro tipo 3 e 4 e 7.2
+                  Parameters = 0;
 
                   // Tentando declarar uma função que tem nome de variável global
                   temp = hashTable;       // Guardo a hash atual

@@ -20,7 +20,7 @@ typedef struct BucketListRec{
     char *name;
      LineList lines;
      VarType DataType;
-     int memloc ; /* memory location for variable */
+     int memloc; /* memory location for variable */
      struct BucketListRec *next;
 }*BucketList;
 
@@ -29,7 +29,7 @@ que estão nessa função, deixar isso bem separado (funções e variáveis) fac
 de tratar os erros semânticos */
 typedef struct EscopoListRec{
     char *nameEscopo;
-    int typeEscopo,lineno;
+    int typeEscopo,lineno,param;
     struct EscopoListRec *next;
     BucketList *hashTable; /* Tabela Hash */
 }*Escopo;

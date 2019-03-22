@@ -33,7 +33,7 @@ Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
     new->typeEscopo = type;
     new->lineno = lineno;
     new->next = NULL;
-    location = 0;
+    //location = 0;
     return new;
 }
 
@@ -95,7 +95,7 @@ static void insertNode( TreeNode * t)
                   hashTable = temp; // Atualizo para hash atual
               }
                 // Considera que a variável já foi declarada, não precisa inserir tipo na tabela (Default)
-                else{ st_insert(t->attr.name, t->lineno, location++, Default); }
+                else{ st_insert(t->attr.name, t->lineno, location, Default); }
 
               break;
               case TypeK:   Attrib = 0; break; // Nada a fazer
@@ -110,7 +110,7 @@ static void insertNode( TreeNode * t)
                   hashTable = temp; // Atualizo para hash atual
               }
                 // Considera que a variável já foi declarada, não precisa inserir tipo na tabela (Default)
-                else{ st_insert(t->attr.name, t->lineno, location++, Default); }
+                else{ st_insert(t->attr.name, t->lineno, location, Default); }
 
               break; // Nada a fazer
               case CallK:  // Tratando Erro tipo 2 e tipo 5
@@ -119,9 +119,13 @@ static void insertNode( TreeNode * t)
               Interator = Programa;
               ExpType type;
               int IO = 0;
-              if( (strcmp(t->attr.name,"input")==0) || (strcmp(t->attr.name,"output")==0))
+              if( (strcmp(t->attr.name,"input")==0) )
               {
                   IO = 1;
+              }
+              else if( strcmp(t->attr.name,"output")==0 )
+              {
+                  IO = 2;
               }
               while(Interator != NULL)
               {
@@ -157,7 +161,13 @@ static void insertNode( TreeNode * t)
                             k = FunctIntArray;
                         break;
                     }
-                    st_insert(t->attr.name, t->lineno, location++, k);
+
+                    if(IO == 1){ k = FunctInt; }
+                    else if( IO == 2){ k = FunctVoid; }
+                    if( st_lookup(t->attr.name) == -1 )
+                    { st_insert(t->attr.name, t->lineno, location++, k); }
+                      else { st_insert(t->attr.name, t->lineno, location, k);}
+
                 }
 
               break;
@@ -174,25 +184,29 @@ static void insertNode( TreeNode * t)
           {
               case ArrParamK:
                     AnalyzeErrosDecl(t,0);
-                    st_insert(t->attr.name, t->lineno,location++, IntArray);
+                    st_insert(t->attr.name, t->lineno,location, IntArray);
+                    location++;
               break;
 
               case ParamK:
                     if (t->attr.name != NULL)
                     {
                         AnalyzeErrosDecl(t,0);
-                        st_insert(t->attr.name, t->lineno, location++, Int);
+                        st_insert(t->attr.name, t->lineno, location, Int);
+                        location++;
                     }
               break;
 
               case ArrVarK: // Tipo da declarada é void | Variável já foi declarada
                     AnalyzeErrosDecl(t,1);
-                    st_insert(t->attr.arr.name, t->lineno, location++, IntArray);
+                    st_insert(t->attr.arr.name, t->lineno, location, IntArray);
+                    location+=t->attr.arr.size;
               break;
 
               case VarK: // Tratando erro tipo 3 e 4 e 7.1
                     AnalyzeErrosDecl(t,0);
-                    st_insert(t->attr.name, t->lineno, location++, Int);
+                    st_insert(t->attr.name, t->lineno, location, Int);
+                    location++;
               break;
 
               case FunK: // Tratando erro tipo 3 e 4 e 7.2
@@ -203,6 +217,11 @@ static void insertNode( TreeNode * t)
                   if( st_lookup(t->attr.name) != -1 ) // Procuro a variável na hash global
                   { ErrorType(t,7,t->attr.name,t->lineno); }
                   hashTable = temp;                   // Atualizo para hash atual
+
+                  if( strcmp(t->attr.name,"input") == 0 || strcmp(t->attr.name,"output") == 0 )
+                  {
+                      ErrorType(t,8,t->attr.name,t->lineno);
+                  }
 
                   EscopoAtual = NovoEscopo(EscopoAtual,t->attr.name,t->child[0]->type,t->lineno);
                   if( strcmp(t->attr.name,"main") == 0){ TemMain = 1; }

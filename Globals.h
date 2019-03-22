@@ -35,7 +35,6 @@ typedef enum { IfK, WhileK, AssignK, CompoundK, ReturnK } StmtKind;
 typedef enum { OpK, ConstK, IdK, TypeK, ArrIdK, CallK, CalcK } ExpKind;
 typedef enum { VarK, FunK, ArrVarK, ArrParamK, ParamK } DeclKind; /* DeclKind chega o tipo de declaracao */
 
-
 #define MAXCHILDREN 3
 
 typedef struct Array{

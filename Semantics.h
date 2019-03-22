@@ -55,6 +55,12 @@ void ErrorType(TreeNode * t,int TypeTest,char *function, int lineno)
           typeError(t, "\tAmbiguity in the statement.");
           fprintf(listing,"\n\t\t\tFunction and variable with same name '%s'\n",function);
         break;
+        /* Redefinindo primitiva output ou input */
+        case 8:
+          fprintf(listing,"- In line %d\n",lineno);
+          typeError(t, "\tFunction input or output redefinition");
+          fprintf(listing,"\n\t\t\tRename or remove this function '%s'\n",function);
+        break;
       }
 }
 

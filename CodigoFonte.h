@@ -9,12 +9,11 @@ int Error = FALSE;
 FILE *source;
 FILE *listing;
 FILE *code;
-FunctionsProgram FList;
 
 // Flags
 int Lexical = FALSE;
-int Arvore  = TRUE;
-int TSymbol = TRUE;
+int Arvore  = FALSE;
+int TSymbol = FALSE;
 
 // Funcoes
 void RunCompiler(char* codename);

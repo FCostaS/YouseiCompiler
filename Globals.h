@@ -82,10 +82,3 @@ void printToken(TokenType token, const char* tokenString );
 // SCAN FUNÇÕES
 TokenType getToken(void);
 char *copyString(char * s);
-
-/// Hash Table Functions
-typedef struct FunctionStruct{
-    char ListFunctions[MAXFUNCTIONS][MAXTOKENLEN+1];
-    int iterator;
-}FunctionsProgram;
-extern FunctionsProgram FList;

@@ -18,7 +18,6 @@ Se durante a montagem da tabela a função main for encontrada, ela será
 setada para 1, nesse caso, ao fim da monstagem da tabela, se ela continuar 0
 é porque não encontrou (...) */
 int TemMain = 0;
-int iteradorINT;
 
 /* NovoEscopo cria um novo nó para lista encadeada de funções */
 Escopo NovoEscopo(Escopo atual,char name[], int type,int lineno)
@@ -270,9 +269,9 @@ void AnalyzeErrosDecl(TreeNode * t,int TYPE)
           }
 
           // Tentando declarar uma variável que já recebeu nome de função
-          for(iteradorINT=0;iteradorINT < FList.iterator;iteradorINT++)
+          for(Interator=Programa;Interator!=NULL ;Interator=Interator->next)
           {
-              if(strcmp(t->attr.arr.name,FList.ListFunctions[iteradorINT])==0)
+              if(strcmp(t->attr.arr.name,Interator->nameEscopo)==0)
               {
                   ErrorType(t,7,t->attr.arr.name,t->lineno);
               }
@@ -288,9 +287,9 @@ void AnalyzeErrosDecl(TreeNode * t,int TYPE)
             }
 
             // Tentando declarar uma variável que já recebeu nome de função
-            for(iteradorINT=0;iteradorINT < FList.iterator;iteradorINT++)
+            for(Interator=Programa;Interator!=NULL ;Interator=Interator->next)
             {
-                if(strcmp(t->attr.name,FList.ListFunctions[iteradorINT])==0)
+                if(strcmp(t->attr.name,Interator->nameEscopo)==0)
                 {
                     ErrorType(t,7,t->attr.name,t->lineno);
                 }

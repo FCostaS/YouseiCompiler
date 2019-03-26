@@ -112,11 +112,16 @@ static void genExpK( TreeNode * t)
         case TypeK:   break;
         case ArrIdK:  break;
         case CallK:   // Chamada de Função (Análise de Argumentos da Função)
+                if( strcmp(t->attr.name,"output") == 0)
+                {
+                    printf("Output Data\n");
+                }
                 args = 0;
-                for(p1=t->child[0];p1!=NULL;p1 = p1->sibling) { genExpK(p1); args++; }
+                for(p1=t->child[0];p1!=NULL;p1 = p1->sibling)
+                { genExpK(p1); args++; }
         break;
         case CalcK:
-          // 
+          //
           CalcGen(t);
           Reg--;
           // Devolver todos os últimos registradores anterior ao último usado
@@ -136,20 +141,33 @@ static void genStmtK( TreeNode * tree)
       {
           case IfK:
 
-         p1 = tree->child[0] ;
-         p2 = tree->child[1] ;
-         p3 = tree->child[2] ;
+          p1 = tree->child[0] ;
+          p2 = tree->child[1] ;
+          p3 = tree->child[2] ;
 
-         //IF
-         cGen(p1);
+          //IF
+          cGen(p1);
+          printf("IF\n");
 
-         // ELSE
-         cGen(p2);
-         cGen(p3);
+          // ELSE
+          cGen(p2);
+          printf("ELSE\n");
+          cGen(p3);
 
           break;
-          case WhileK:      break;
-          case AssignK:     break;
+          case WhileK:
+
+
+
+          break;
+          case AssignK:
+
+          /*if( strcmp(tree->child[1]->attr.name,"input") == 0)
+          {
+              printf("Input Data\n");
+          }*/
+
+          break;
           case CompoundK:
                   for (i=0; i < MAXCHILDREN; i++)
                   {
@@ -158,6 +176,7 @@ static void genStmtK( TreeNode * tree)
           break;
           case ReturnK:
                   cGen(tree->child[0]); // Invoca Jump Register
+                  printf("Return: Move returned to Register $1!\n");
           break;
           default: printf("Você me esqueceu parça stmt!\n"); break;
       }
@@ -168,9 +187,20 @@ static void genDeclK( TreeNode * t)
       switch (t->kind.decl)
       {
             case ArrParamK:  break; // Util na atribuição de Registradores Gerais
-            case ParamK:     break; // Util na atribuição de Registradores Gerais
+            case ParamK:
+
+            if(t->attr.type!=Void)
+            {
+              printf("Definindo Registrador Temporário para '%s'\n",t->attr.name );
+            }
+
+            break; // Util na atribuição de Registradores Gerais
             case ArrVarK:    break; // Util na atribuição de Registradores Temporários
-            case VarK:       break; // Util na atribuição de Registradores Temporários
+            case VarK:
+
+            printf("Definindo Registrador Temporário para '%s'\n",t->attr.name );
+
+            break; // Util na atribuição de Registradores Temporários
             case FunK:              // Percorre as funções presentes no programa
                 printf("%s:\n",t->attr.name);
                 for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); }

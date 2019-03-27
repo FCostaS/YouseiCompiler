@@ -5,90 +5,13 @@
 #include "CGen.h"
 #include "CodeGeass.h"
 
-int i;
+int i,Intermediary = 0;
 Stack MyStack;
 
 static void cGen( TreeNode * tree);
 static void genExpK( TreeNode * t);
-char *StringOperation(TreeNode *tree);
-void CalcGen(TreeNode *t);
-
-/*char *ObterID(TreeNode *t)
-{
-    char *buffer;
-    switch (t->kind.exp)
-    {
 
 
-      case CalcK:
-          buffer = (char*)malloc(5*sizeof(char));
-          int Reg = MyStack.Reg[MyStack.top];
-          sprintf( buffer, "%d", Reg);
-          genExpK(t);
-          return buffer;
-      break;
-    }
-}*/
-
-char *StringOperation(TreeNode *tree)
-{
-    char *buffer;
-    buffer = (char*)malloc(5*sizeof(char));
-    switch (tree->kind.exp)
-    {
-        case OpK:
-          switch (tree->attr.op)
-          {
-              case PLUS : sprintf( buffer, "+"); return buffer;
-              case MINUS: sprintf( buffer, "-"); return buffer;
-              case STAR : sprintf( buffer, "*"); return buffer;
-              case BAR  : sprintf( buffer, "/"); return buffer;
-              case SLT  : sprintf( buffer, "<"); return buffer;
-              case SLTE : sprintf( buffer, "<="); return buffer;
-              case SBT  : sprintf( buffer, ">"); return buffer;
-              case SBTE : sprintf( buffer, ">="); return buffer;
-              case EQUAL: sprintf( buffer, "=="); return buffer;
-              case DIFF : sprintf( buffer, "!="); return buffer;
-        }
-       break;
-       case IdK:
-           return tree->attr.name;
-       break;
-
-       case ConstK:
-           buffer = (char*)malloc(5*sizeof(char));
-           sprintf( buffer, "%d", tree->attr.val );
-           return buffer;
-       break;
-
-       case CalcK:
-           CalcGen(tree);
-           buffer = (char*)malloc(5*sizeof(char));
-           sprintf( buffer, "%d",Reg);
-           Reg--;
-           return buffer;
-       break;
-
-       default:
-        printf("Default StringOperation\n");
-       return buffer;
-    }
-}
-
-void CalcGen(TreeNode *t)
-{
-      TreeNode *p1,*p2,*p3;
-      char *A,*B,*C;
-      p1 = t->child[0];
-      p2 = t->child[1];
-      p3 = t->child[2];
-
-      A = StringOperation(p1);
-      B = StringOperation(p2);
-      C = StringOperation(p3);
-
-      printf("%d <- %s %s %s\n",Reg,A,B,C);
-}
 
 static void genExpK( TreeNode * t)
 {
@@ -112,19 +35,14 @@ static void genExpK( TreeNode * t)
         case TypeK:   break;
         case ArrIdK:  break;
         case CallK:   // Chamada de Função (Análise de Argumentos da Função)
-                if( strcmp(t->attr.name,"output") == 0)
-                {
-                    printf("Output Data\n");
-                }
-                args = 0;
-                for(p1=t->child[0];p1!=NULL;p1 = p1->sibling)
-                { genExpK(p1); args++; }
+
+              if( strcmp(t->attr.name,"output") == 0){ printf("Output Data\n"); }
+              args = 0;
+              for(p1=t->child[0];p1!=NULL;p1 = p1->sibling)
+              { genExpK(p1); args++; }
         break;
         case CalcK:
-          //
-          CalcGen(t);
-          Reg--;
-          // Devolver todos os últimos registradores anterior ao último usado
+
         break;
         default: printf("Você me esqueceu parça exp!\n"); break;
     }

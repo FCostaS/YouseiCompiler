@@ -130,7 +130,7 @@ void printTree( TreeNode * tree )
           break;
         case TypeK: break;
         case ArrIdK:
-          fprintf(listing,"Array ID \n");
+          fprintf(listing,"Array ID: %s\n",tree->attr.name);
           break;
         case CallK:
           fprintf(listing, "Call Function: %s\n", tree->attr.name);

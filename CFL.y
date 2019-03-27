@@ -4,6 +4,7 @@
     #include "Globals.h"
     #include <string.h>
     #define YYSTYPE TreeNode*   /* Definindo tipo do valor semantico como no da arvore sintatica */
+    #define YYDEBUG 1
 
     static int savedNumber;
     static char *savedName;     /* for use in assignments */
@@ -22,7 +23,7 @@
 %token ERRO
 
 /* Ignora um conflito de ambiguidade, provocado pela regra do IF ELSE (selecao_decl) */
-%expect 1
+%expect 2
 
 /* REGRAS DE PRODUCAO */
 %%
@@ -93,6 +94,7 @@ var_declaracao:     tipo_espicificador id POINTVIG
                         $$->attr.arr.name = savedName;
                         $$->attr.arr.size = savedNumber;
                     }
+                    | error { yyerrok; }
                     ;
 
 tipo_espicificador: INT
@@ -104,7 +106,7 @@ tipo_espicificador: INT
                     {
                         $$ = newNode(TypeK,0); /* O no é uma expressão */
                         $$->type = Void;
-                     }
+                    }
                     ;
 
 fun_declaracao:     tipo_espicificador id
@@ -130,7 +132,7 @@ params:             param_lista
                     {
                         $$ = newNode(ParamK,1); /* O no é uma declaracao */
                         $$->type = Void;
-                     }
+                    }
                     ;
 
 param_lista:        param_lista VIG param
@@ -243,6 +245,7 @@ expressao_decl:     expressao POINTVIG
                     {
                         $$ = NULL;
                     }
+                    | error { yyerrok; }
                     ;
 
 selecao_decl:       IF OPPAR expressao CLPAR statement
@@ -474,13 +477,16 @@ int yyerror(char * message)
 {
   fprintf(listing,"Syntax error at line %d: %s\n",lineno,message);
   fprintf(listing,"Current token: "); printToken(yychar,tokenString);
-  Error = TRUE;
+  Error = FALSE;
   return 0;
 }
 
 /* Invoca o yylex criado pelo Bison e não pelo flex */
 static int yylex(void){ return getToken(); }
-TreeNode *parse(void){ yyparse(); return savedTree; }
+TreeNode *parse(void){
+    yydebug = 0;
+    yyparse(); return savedTree;
+}
 
 /* Cria no para inserir na arvore */
 TreeNode *newNode(DeclKind kind,int type)

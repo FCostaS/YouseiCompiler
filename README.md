@@ -15,5 +15,5 @@ My compiler for discipline Compiladores.
     - Criar lista de labels (LabelName, LabelLine,IsFunction {Sim, Não})
 
 > Registradores Reservados
-$0       - Acessar posições na memória
-$1-$10   - Temporários/Gerais
+>> $0       - Acessar posições na memória
+>> $1-$10   - Temporários/Gerais

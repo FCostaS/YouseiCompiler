@@ -29,7 +29,7 @@ extern int Error;     /* Flag que indica se houve algum erro */
 extern int Lexical;
 
 typedef enum { Void, Integer, IntegerArray, Global, GlobalArray } ExpType; /* ExpType chega o tipo de expressão da variavel */
-typedef enum { Int, IntArray, FunctInt, FunctVoid, FunctIntArray, Default} VarType;
+typedef enum { Int, IntArray, FunctInt, FunctVoid, Default} VarType;
 typedef enum { StmtK, ExpK, DeclK } NodeKind;
 typedef enum { IfK, WhileK, AssignK, CompoundK, ReturnK } StmtKind;
 typedef enum { OpK, ConstK, IdK, TypeK, ArrIdK, CallK, CalcK } ExpKind;

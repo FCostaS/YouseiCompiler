@@ -158,9 +158,6 @@ static void insertNode( TreeNode * t)
                         case Integer:
                             k = FunctInt;
                         break;
-                        case IntegerArray:
-                            k = FunctIntArray;
-                        break;
                     }
 
                     if(IO == 1){ k = FunctInt; }

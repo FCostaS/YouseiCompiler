@@ -1,73 +1,65 @@
-#define NReg 16
+typedef enum {Empty,Constant, Variable} TypeOP;
 
-typedef struct{
-    int Reg[NReg];
-    int top;
-    int block;
-}Stack;
-int Reg = NReg;
+typedef enum {ADD, SUB, MULT, DIV, INC, DEC, AND, OR,
+              NOT, XOR, ADDI, MOVE, SLt,slte,sbt,sbte,equal,diff,
+              JUMP, LOAD, STORE, IN, OUT, BEQ, BNE, NOP, SLL, SRL,
+              SGT, SET, MOD, JR, JAL, LI, PUSH, POP,
+              CALL} Instructions;
 
-void StartStack(Stack *MyStack);
-void BlockStack(Stack *MyStack);
-void UnblockStack(Stack *MyStack);
-int Pop(Stack *MyStack);
-void Push(Stack *MyStack);
+typedef struct {
+  TypeOP kind;
+      union {
+        int val;
+        char *Variable;
+        BucketList LocalVar;
+  } Contents;
+} *Operand;
 
-/* Eu inicializo a pilha com os registradores
-O item block é para caso eu impeça a remoção de um registrador
-na pilha, isso é apenas para atribuir o mesmo registrador à
-operação */
-void StartStack(Stack *MyStack){
-    int n = NReg;
+typedef struct Quadr{
+      Operand Op1,Op2,Op3;
+      Instructions Inst;
+      int IndexLine;
+      struct Quadr *next;
+}Quadruple;
 
-    while(n >= 0)
-    {
-        n--;
-        MyStack->Reg[n] = n;
-    }
-    MyStack->block = 0;
-    MyStack->top  = NReg-1;
-}
+int LineCode = 0;
+int Reg = 0,Label = 0;
+char * InstructionsNames[] = {"add","sub","mult","div","inc","dec",
+                              "and","or","not","xor","addi","move",
+                              "slt","slte","sbt","sbte","equal","diff",
+                              "jump","load","store","in","out",
+                              "beq","bne","nop","sll","srl","sgt",
+                              "set","mod","jr","jal","li","push",
+                              "pop","call"};
 
-void lockStack(Stack *MyStack)
+
+char *TypeInstruction(Instructions i)
 {
-    MyStack->block = 1;
+  return InstructionsNames[i];
 }
 
-void UnlockStack(Stack *MyStack)
+void PrintQuadruple(Instructions I,char *Op1,char *Op2, char *Op3)
 {
-    MyStack->block = 0;
+   printf("%d: (%s,%s,%s,%s)\n",LineCode++,TypeInstruction(I),Op1,Op2,Op3);
 }
 
-/* Como havia dito, se a pilha está bloqueada, eu apenas
-envio o valor do registrador atual */
-int Pop(Stack *MyStack)
+char *GiveMeTemporary()
 {
-    if(MyStack->block == 1)
-    {
-        return MyStack->Reg[MyStack->top];
-    }
-      else if( MyStack->top > 0)
-      {
-          MyStack->top--;
-          return MyStack->Reg[MyStack->top+1];
-      }
+    char* buffer = (char*)malloc(5*sizeof(char));
+    sprintf(buffer,"t%d",Reg++);
+    return buffer;
 }
 
-void Push(Stack *MyStack)
+char *GiveMeLabel()
 {
-    if(MyStack->top == NReg-1)
-    {
-        printf("Não há registradores para adicionar\n");
-        /* Em tese, isso nunca deve acontecer
-        Se acontecer, é sinal que há um bug na minha
-        lógica, então devo ficar esperto */
-    }
-      else
-      {
-          MyStack->top++;
-          MyStack->Reg[MyStack->top] = MyStack->top;
-      }
+    char* buffer = (char*)malloc(5*sizeof(char));
+    sprintf(buffer,"L%d",Label++);
+    return buffer;
 }
 
-/*************************************/
+char *ShowMeTemporary()
+{
+    char* buffer = (char*)malloc(5*sizeof(char));
+    sprintf(buffer,"t%d",Reg);
+    return buffer;
+}

@@ -13,6 +13,7 @@ My compiler for discipline Compiladores.
     - Reservar t0 para acessar posições na memória
     - Devolver (Limpar) registradores usados pelo Calck (Ver como fazer isso)
     - Criar lista de labels (LabelName, LabelLine,IsFunction {Sim, Não})
+    - Limpar todos os registradores após a função utilizar (Carry Junk)
 
 > Registradores Reservados
  - $0       - Acessar posições na memória

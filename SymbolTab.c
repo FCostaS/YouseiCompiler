@@ -39,7 +39,6 @@ char *TypeVariable( VarType TYPE)
         case Int:             return "Integer";
         case IntArray:        return "Integer Array";
         case FunctInt:        return "Function Int";
-        case FunctIntArray:   return "Function Int Array";
         case FunctVoid:       return "Function Void";
         case Default:         return "Fabs, Você esqueceu de definir mais tipos";
         default: return "Function Int";
@@ -56,6 +55,20 @@ int st_lookup ( char * name )
   if (l == NULL) return -1;
   else return l->memloc;
 }
+
+VarType st_lookup_Type( char * name )
+{
+  int h = hash(name);
+  BucketList l =  hashTable[h];
+  while ((l != NULL) && (strcmp(name,l->name) != 0))
+    l = l->next;
+  if(l == NULL)
+  {
+    return Default;
+  }
+  return l->DataType;
+}
+
 
 /* Insere numeros de linhas e localização da memória na tabela de símbolos */
 void st_insert( char * name, int lineno, int loc ,VarType var)

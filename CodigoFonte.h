@@ -13,7 +13,7 @@ FILE *code;
 // Flags
 int Lexical = FALSE;
 int Arvore  = TRUE;
-int TSymbol = TRUE;
+int TSymbol = FALSE;
 
 // Funcoes
 void RunCompiler(char* codename);
@@ -34,7 +34,7 @@ void RunCompiler(char* codename)
             printTree(syntax);
         }
         buildSymtab(syntax);
-        //codeGen(syntax,codename);
+        codeGen(syntax,codename);
       }
       CloseCode();
 }

@@ -138,7 +138,7 @@ static void genExpK( TreeNode * t)
                 {
                     Op1 = InsertOperand(Variable,p1->attr.name,-1);
                     Op2 = InsertOperand(Empty,TypeRegister(2),2);
-                    PrintQuadruple(JAL,Op1,OperadorVazio,OperadorVazio,"");
+                    PrintQuadruple(CALL,Op1,OperadorVazio,OperadorVazio,"");
                     //PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"");
                 }
 

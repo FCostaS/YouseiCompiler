@@ -116,6 +116,12 @@ static void genExpK( TreeNode * t)
                         Op2 = InsertOperand(Constant,Int2String(p1->attr.val),p1->attr.val);
                         PrintQuadruple(LI,Op1,Op2,OperadorVazio,"");
                   }
+                  else if( p1->kind.exp == CallK )
+                  {
+                        Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
+                        Op2 = InsertOperand(Empty,p1->attr.name,-1);
+                        PrintQuadruple(MOVE,Op1,Op2,OperadorVazio,"");
+                  }
                   else
                   {
                         Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
@@ -143,12 +149,14 @@ static void genExpK( TreeNode * t)
                   switch(temp)
                   {
                     case CallK:
-                        Op1 = InsertOperand(Empty,TypeRegister(2),2);
+                        ARGS--;
+                        Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
                         PrintQuadruple(OUT,Op1,OperadorVazio,OperadorVazio,"");
                     break;
 
                     case IdK:
-                        Op1 = InsertOperand(Empty,TypeRegister(2),2);
+                        ARGS--;
+                        Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
                         PrintQuadruple(OUT,Op1,OperadorVazio,OperadorVazio,"");
                     break;
 

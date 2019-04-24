@@ -108,6 +108,13 @@ char *ShowMeTemporary()
     return buffer;
 }
 
+char *ShowMeArgs()
+{
+    char* buffer = (char*)malloc(5*sizeof(char));
+    sprintf(buffer,"%s",TypeRegister(ARGS));
+    return buffer;
+}
+
 char *Int2String(int i)
 {
   char* buffer = (char*)malloc(5*sizeof(char)); sprintf(buffer,"%d",i);

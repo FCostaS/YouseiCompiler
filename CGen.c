@@ -45,7 +45,15 @@ static Operand InsertOperand(TypeOP expo,char *nameVariable,int constant)
           Op->Variable = nameVariable;
       break;
 
-      default:
+      case Call_Value:
+          Op->Variable = nameVariable;
+      break;
+
+      case Empty:
+          Op->Variable = nameVariable;
+      break;
+
+      case ArrVariable:
           Op->Variable = nameVariable;
       break;
     }
@@ -82,8 +90,6 @@ static void genExpK( TreeNode * t)
 
         case ConstK:
             CurrentOpK = InsertOperand(Constant,ShowMeTemporary(),t->attr.val);
-            //PrintQuadruple(LI,InsertOperand(Empty,ShowMeTemporary(),Reg),CurrentOpK,OperadorVazio,"");
-            //CurrentInst = LI;
         break;
 
         case IdK:
@@ -93,7 +99,11 @@ static void genExpK( TreeNode * t)
         case TypeK:   break;
 
         case ArrIdK:
-            CurrentOpK = InsertOperand(Variable,t->attr.name,t->attr.val);
+            genExpK(t->child[0]);
+            Op1 = CurrentOpK;
+            Op2 = InsertOperand(Variable,t->attr.name,t->attr.val);
+            CurrentOpK = InsertOperand(Empty,GiveMeTemporary(),Reg-1);
+            PrintQuadruple(LOAD,CurrentOpK,Op2,Op1,"-- Fazendo leitura de memória p/ vetor");
         break;
         case CallK:   // Chamada de Função (Análise de Argumentos da Função)
               args = 0;
@@ -119,7 +129,7 @@ static void genExpK( TreeNode * t)
                   else if( p1->kind.exp == CallK )
                   {
                         Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
-                        Op2 = InsertOperand(Empty,p1->attr.name,-1);
+                        Op2 = InsertOperand(Call_Value,p1->attr.name,-1);
                         PrintQuadruple(MOVE,Op1,Op2,OperadorVazio,"");
                   }
                   else
@@ -225,15 +235,16 @@ static void genStmtK( TreeNode * tree)
           op2 = InsertOperand(Mark,CurrentLabel1,-1);
           PrintQuadruple(BEQ,op3,InsertOperand(Constant,copyString("0"),0),op2,"-- Início do If");
 
-
           // IF
           cGen(p2);
           op1 = InsertOperand(Mark,CurrentLabel2,-1);
           PrintQuadruple(JUMP,op1,OperadorVazio,OperadorVazio,"-- Fim do If");
+          op2->val = LineCode; // Indico onde o label está localizado
           PrintQuadruple(NOP,op2,OperadorVazio,OperadorVazio,"\t-- Início do Else");
 
           // ELSE
           cGen(p3);
+          op1->val = LineCode; // Indico onde o label está localizado
           PrintQuadruple(NOP,op1,OperadorVazio,OperadorVazio,"-- Fim do Else");
           // Registrador de retorno da pilha
 
@@ -273,10 +284,7 @@ static void genStmtK( TreeNode * tree)
                   op2 = InsertOperand(Empty,ShowMeTemporary(),Reg);
                   temp = tree->child[0]->kind.exp;
                   if( temp == CallK )
-                  {
-                        op1 = InsertOperand(Mark,tree->child[0]->attr.name,-1);
-                        //PrintQuadruple(JAL,op1,OperadorVazio,OperadorVazio,"");
-                  }
+                  { op1 = InsertOperand(Call_Value,tree->child[0]->attr.name,-1); }
                   if( temp == IdK )
                   { op1 = InsertOperand(Variable,tree->child[0]->attr.name,-1); }
                   if( temp == CalcK)
@@ -296,37 +304,48 @@ static void genDeclK( TreeNode * t)
       int Curegister;
       switch (t->kind.decl)
       {
-            case ArrParamK:  break; // Util na atribuição de Registradores Gerais
+            case ArrParamK:
+
+              Op1 = InsertOperand(ArrVariable,t->attr.name,-1);
+              Op2 = InsertOperand(Empty,GiveMeArgs(),-1);
+              PrintQuadruple(MOVE,Op1,Op2,OperadorVazio,"-- Informando endereço de memória do vetor");
+
+            break; // Util na atribuição de Registradores Gerais
             case ParamK:
 
-              if(t->attr.type!=Void)
-              {
-                  Curegister = Reg;
-                  Op1 = InsertOperand(Variable,t->attr.name,-1);
-                  Op2 = InsertOperand(Empty,GiveMeArgs(),-1);
-                  PrintQuadruple(MOVE,Op1,Op2,OperadorVazio,"-- Atribuindo argumentos da função");
-              }
+              if(t->attr.type==Void) return;
+
+              //Curegister = Reg;
+              l = st_lookup_Full(t->attr.name,CurrentFunction);
+              Op1 = InsertOperand(Variable,t->attr.name,l->memloc);
+              Op2 = InsertOperand(Empty,GiveMeArgs(),-1);
+              PrintQuadruple(MOVE,Op1,Op2,OperadorVazio,"-- Atribuindo argumentos da função");
 
             break; // Util na atribuição de Registradores Gerais
             case ArrVarK:
 
+              l = st_lookup_Full(t->attr.arr.name,CurrentFunction);
+              Op2 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);             // Registrador Zero
+              Op1 = InsertOperand(ArrVariable,t->attr.arr.name,l->memloc); // Nome da variável
+              PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"-- Reserva registrador geral para vetor");
+
             break; // Util na atribuição de Registradores Temporários
             case VarK:
 
-                l = st_lookup_Full(t->attr.name,CurrentFunction);
-                Op2 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);             // Registrador Zero
-                Op1 = InsertOperand(Variable,t->attr.name,-1); // Nome da variável
-                PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"-- Reserva registrador $s");
+              l = st_lookup_Full(t->attr.name,CurrentFunction);
+              Op2 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);             // Registrador Zero
+              Op1 = InsertOperand(Variable,t->attr.name,l->memloc); // Nome da variável
+              PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"-- Reserva registrador geral");
 
             break; // Util na atribuição de Registradores Temporários
             case FunK:              // Percorre as funções presentes no programa
-                ResetArg(); // Quando iniciar a função, eu zero o registrador de argumentos
-                CurrentFunction = t->attr.name;
-                Op1 = InsertOperand(Mark,t->attr.name,-1); // Nome de função
-                PrintQuadruple(NOP,Op1,OperadorVazio,OperadorVazio,"-- Início da Função | Reservando rôtulo");
-                for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); }
-                if( strcmp("main",CurrentFunction) != 0)
-                {PrintQuadruple(JR,InsertOperand(Empty,TypeRegister(1),1),OperadorVazio,OperadorVazio,"-- Fim de função");}
+              ResetArg(); // Quando iniciar a função, eu zero o registrador de argumentos
+              CurrentFunction = t->attr.name;
+              Op1 = InsertOperand(Mark,t->attr.name,LineCode); // Nome de função
+              PrintQuadruple(NOP,Op1,OperadorVazio,OperadorVazio,"-- Início da Função | Reservando rôtulo");
+              for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); }
+              if( strcmp("main",CurrentFunction) != 0)
+              {PrintQuadruple(JR,InsertOperand(Empty,TypeRegister(1),1),OperadorVazio,OperadorVazio,"-- Fim de função");}
             break;
             default: printf("Você me esqueceu parça decl!\n"); break;
       }
@@ -355,9 +374,9 @@ static void cGen( TreeNode * tree)
 void codeGen(TreeNode * syntaxTree, char * codefile)
 {
     printf("[Intermediary Code]\n");
+    CurrentFunction = "Global";
     Start(&Stack);
     OperadorVazio = InsertOperand(Empty,"_",-1);
-    PrintQuadruple(JUMP,InsertOperand(Mark,"main",-1),OperadorVazio,OperadorVazio,"-- Salta para main");
     cGen(syntaxTree);
     PrintQuadruple(HALT,OperadorVazio,OperadorVazio,OperadorVazio,"-- Fim do programa");
 }

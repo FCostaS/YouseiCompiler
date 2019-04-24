@@ -16,5 +16,10 @@ My compiler for discipline Compiladores.
     - Limpar todos os registradores após a função utilizar (Carry Junk)
 
 > Registradores Reservados
- - $0       - Acessar posições na memória
- - $1-$10   - Temporários/Gerais
+ - $z0       - Registrador inalterável (Zero sempre)
+ - $r0       - Ponteiro da chamada de função
+ - $v0       - Registrador de retorno de valor de função
+ - $a0-$a5   - Registradores para salvar argumentos de função
+ - $t0-$t10  - Registradores Temporários
+ - $s0-$s10  - Registradores Gerais
+ - $sp       - Ponteiro da Pilha de Recursão

@@ -69,6 +69,18 @@ VarType st_lookup_Type( char * name )
   return l->DataType;
 }
 
+BucketList st_lookup_Full( char * name , char *funct )
+{
+  int h = hash(name);
+  Escopo index = Programa;
+  while( strcmp(funct,index->nameEscopo) != 0){ index = index->next; }
+  hashTable = index->hashTable;
+  BucketList l =  hashTable[h];
+  while ((l != NULL) && (strcmp(name,l->name) != 0))
+    l = l->next;
+  return l;
+}
+
 
 /* Insere numeros de linhas e localização da memória na tabela de símbolos */
 void st_insert( char * name, int lineno, int loc ,VarType var)

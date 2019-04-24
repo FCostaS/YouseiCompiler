@@ -52,3 +52,4 @@ int st_lookup ( char * name ); /* Peguei do Tiny sem modificar */
 void st_insert( char * name, int lineno, int loc ,VarType var); /* Peguei do Tiny sem modificar,
                                                                   apenas adicionei informações acerca da função */
 VarType st_lookup_Type( char * name );
+BucketList st_lookup_Full( char * name , char *funct );

@@ -18,8 +18,7 @@ My compiler for discipline Compiladores.
 > Registradores Reservados
  - $z0       - Registrador inalterável (zero sempre)
  - $r0       - Ponteiro da chamada de função
- - $v0       - Registrador de retorno de valor de função
- - $a0-$a5   - Registradores para salvar argumentos de função
- - $t0-$t10  - Registradores Temporários
+ - $a0-$a5  - Registradores para salvar argumentos de função
+ - $t0-$t11  - Registradores Temporários
  - $s0-$s10  - Registradores Gerais
  - $sp       - Ponteiro da Pilha de Recursão

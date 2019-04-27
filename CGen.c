@@ -113,12 +113,6 @@ static void genExpK( TreeNode * t)
 
         case CallK:   // Chamada de Função (Análise de Argumentos da Função)
               args = 0;
-              if(strcmp("input",t->attr.name)==0)
-              {
-                  Op1 = InsertOperand(Call_Value,t->attr.name,-1);
-                  CurrentOpK = Op1;
-                  return;
-              }
 
               for(p1=t->child[0]; p1!=NULL;p1 = p1->sibling)
               {
@@ -132,13 +126,10 @@ static void genExpK( TreeNode * t)
               p1 = t;
               if( strcmp(t->attr.name,"output") != 0 )
               {
-                  if( p1->kind.exp == CallK )
-                  {
-                      Op1 = InsertOperand(Variable,p1->attr.name,-1);
-                      PrintQuadruple(CALL,Op1,OperadorVazio,OperadorVazio,"");
-                      CurrentOpK = Op1;
-                      ResetArg();
-                  }
+                  Op1 = InsertOperand(Variable,p1->attr.name,-1);
+                  PrintQuadruple(CALL,Op1,OperadorVazio,OperadorVazio,"");
+                  CurrentOpK = Op1;
+                  ResetArg();
               } // Tratando caso em que a chamada é output
               else
               {

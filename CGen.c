@@ -56,6 +56,10 @@ static Operand InsertOperand(TypeOP expo,char *nameVariable,int constant)
       case ArrVariable:
           Op->Variable = nameVariable;
       break;
+
+      case ArrEmpty:
+          Op->Variable = nameVariable;
+      break;
     }
     Op->kind = expo;
     return Op;
@@ -101,79 +105,36 @@ static void genExpK( TreeNode * t)
         case ArrIdK:
             genExpK(t->child[0]);
             Op1 = CurrentOpK;
-            Op2 = InsertOperand(Variable,t->attr.name,t->attr.val);
-            CurrentOpK = InsertOperand(Empty,GiveMeTemporary(),Reg-1);
-            PrintQuadruple(LOAD,CurrentOpK,Op2,Op1,"-- Fazendo leitura de memória p/ vetor");
+            Op2 = InsertOperand(ArrVariable,t->attr.name,t->attr.val);
+            CurrentOpK = InsertOperand(ArrEmpty,GiveMeTemporary(),Reg-1);
+            if(Assign_Type==0) PrintQuadruple(LOAD,CurrentOpK,Op2,Op1,"-- Fazendo leitura da memória p/ registrador");
+            else PrintQuadruple(STORE,CurrentOpK,Op2,Op1,"-- Fazendo gravação do registrador p/ memória");
         break;
+
         case CallK:   // Chamada de Função (Análise de Argumentos da Função)
               args = 0;
-              if(strcmp("input",t->attr.name)==0)
-              { return; }
 
               for(p1=t->child[0]; p1!=NULL;p1 = p1->sibling)
               {
                   genExpK(p1);
-                  if ( p1->kind.exp == IdK )
-                  {
-                      l = st_lookup_Full(p1->attr.name,CurrentFunction);
-                      Op1 = InsertOperand(Variable,p1->attr.name,-1);
-                      Op2 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
-                      PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"");
-                  }
-                  else if( p1->kind.exp == ConstK )
-                  {
-                        Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
-                        Op2 = InsertOperand(Constant,Int2String(p1->attr.val),p1->attr.val);
-                        PrintQuadruple(LI,Op1,Op2,OperadorVazio,"");
-                  }
-                  else if( p1->kind.exp == CallK )
-                  {
-                        Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
-                        Op2 = InsertOperand(Call_Value,p1->attr.name,-1);
-                        PrintQuadruple(MOVE,Op1,Op2,OperadorVazio,"");
-                  }
-                  else
-                  {
-                        Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
-                        Op2 = InsertOperand(Empty,ShowMeTemporary(),Reg);
-                        PrintQuadruple(MOVE,Op1,Op2,OperadorVazio,"");
-                  }
+                  Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
+                  PrintQuadruple(MOVE,Op1,CurrentOpK,OperadorVazio,"");
+                  CurrentOpK = Op1;
                   args++;
               }
 
               p1 = t;
               if( strcmp(t->attr.name,"output") != 0 )
               {
-                if( p1->kind.exp == CallK )
-                {
-                    Op1 = InsertOperand(Variable,p1->attr.name,-1);
-                    Op2 = InsertOperand(Empty,TypeRegister(2),2);
-                    PrintQuadruple(CALL,Op1,OperadorVazio,OperadorVazio,"");
-                    //PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"");
-                }
-
-              }// Tratando caso em que a chamada é output
+                  Op1 = InsertOperand(Variable,p1->attr.name,-1);
+                  PrintQuadruple(CALL,Op1,OperadorVazio,OperadorVazio,"");
+                  CurrentOpK = Op1;
+                  ResetArg();
+              } // Tratando caso em que a chamada é output
               else
               {
-                  temp = t->child[0]->kind.exp;
-                  switch(temp)
-                  {
-                    case CallK:
-                        ARGS--;
-                        Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
-                        PrintQuadruple(OUT,Op1,OperadorVazio,OperadorVazio,"");
-                    break;
-
-                    case IdK:
-                        ARGS--;
-                        Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
-                        PrintQuadruple(OUT,Op1,OperadorVazio,OperadorVazio,"");
-                    break;
-
-                    default:
-                        printf("Exigimos mais\n");
-                    break;
-                  }
+                ResetArg();
+                PrintQuadruple(OUT,CurrentOpK,OperadorVazio,OperadorVazio,"");
               }
         break;
         case CalcK:
@@ -188,7 +149,6 @@ static void genExpK( TreeNode * t)
             else if (p1->kind.exp == CallK)
             { Op1 = InsertOperand(Mark,p1->attr.name,-1); }
             else { Op1 = CurrentOpK; }
-
 
             genExpK(p3);
             if(p3->kind.exp == CalcK)
@@ -252,6 +212,23 @@ static void genStmtK( TreeNode * tree)
 
           case WhileK:
 
+          p1 = tree->child[0];
+          p2 = tree->child[1];
+          CurrentLabel1 = GiveMeLabel();
+          CurrentLabel2 = GiveMeLabel();
+
+          op1 = InsertOperand(Constant,TypeRegister(0),0);
+          op2 = InsertOperand(Mark,CurrentLabel1,LineCode);
+          op3 = InsertOperand(Mark,CurrentLabel2,-1);
+          PrintQuadruple(NOP,op2,OperadorVazio,OperadorVazio,"-- Início do While");
+          cGen(p1);
+          PrintQuadruple(BEQ,CurrentOpK,op1,op3,"");
+
+          cGen(p2);
+          op3->val = LineCode;
+          PrintQuadruple(JUMP,op2,OperadorVazio,OperadorVazio,"");
+          PrintQuadruple(NOP,op3,OperadorVazio,OperadorVazio,"-- Fim do While");
+
           break;
 
           case AssignK:
@@ -259,20 +236,21 @@ static void genStmtK( TreeNode * tree)
           p1 = tree->child[0];
           p2 = tree->child[1];
 
+          Assign_Type = 1; // Tipo gravação
           cGen(p2);
-          op2 = CurrentOpK;
-
-          cGen(p1);
-          op1 = CurrentOpK;
-
-          if( p2->attr.name!=NULL && strcmp(p2->attr.name,"input") == 0 )
+          /*if( p2->kind.exp == CallK && strcmp(p2->attr.name,"input") == 0 )
           {
               l = st_lookup_Full(p1->attr.name,CurrentFunction);
               op1 = InsertOperand(Variable,p1->attr.name,-1);
-              PrintQuadruple(IN,op1,OperadorVazio,OperadorVazio,"");
-          }
-            else
-            { PrintQuadruple(MOVE,op1,op2,OperadorVazio,""); }
+              PrintQuadruple(IN,CurrentOpK,OperadorVazio,OperadorVazio,"");
+          }*/
+          op2 = CurrentOpK;
+
+          Assign_Type = 0; // Tipo gravação
+          cGen(p1);
+          op1 = CurrentOpK;
+
+          PrintQuadruple(MOVE,op1,op2,OperadorVazio,"");
 
           break;
           case CompoundK:
@@ -281,17 +259,7 @@ static void genStmtK( TreeNode * tree)
           break;
           case ReturnK:
                   cGen(tree->child[0]); // Invoca Jump Register
-                  op2 = InsertOperand(Empty,ShowMeTemporary(),Reg);
-                  temp = tree->child[0]->kind.exp;
-                  if( temp == CallK )
-                  { op1 = InsertOperand(Call_Value,tree->child[0]->attr.name,-1); }
-                  if( temp == IdK )
-                  { op1 = InsertOperand(Variable,tree->child[0]->attr.name,-1); }
-                  if( temp == CalcK)
-                  { op1 = InsertOperand(Empty,ShowMeTemporary(),-1); }
-                  if( temp == Constant)
-                  { op1 = InsertOperand(Constant,Int2String(tree->child[0]->attr.val),tree->child[0]->attr.val); }
-                  PrintQuadruple(RETURNi,op1,OperadorVazio,OperadorVazio,"");
+                  PrintQuadruple(RETURNi,CurrentOpK,OperadorVazio,OperadorVazio,"");
           break;
           default: printf("Você me esqueceu parça stmt!\n"); break;
       }
@@ -375,7 +343,6 @@ void codeGen(TreeNode * syntaxTree, char * codefile)
 {
     printf("[Intermediary Code]\n");
     CurrentFunction = "Global";
-    Start(&Stack);
     OperadorVazio = InsertOperand(Empty,"_",-1);
     cGen(syntaxTree);
     PrintQuadruple(HALT,OperadorVazio,OperadorVazio,OperadorVazio,"-- Fim do programa");

@@ -1,0 +1,20 @@
+/* Contador crescente e decrescente */
+
+void main(void)
+{
+	int i;
+
+	i = 0;
+	while(i < 10)
+	{
+		i = i + 1;
+		output(i);
+	}
+
+	while(i >= 0)
+	{
+		i = i - 1;
+		output(i);
+	}
+
+}

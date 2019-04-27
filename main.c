@@ -5,4 +5,5 @@ int main()
     //RunCompiler("sort com erros.txt");
     RunCompiler("CMinus.txt");
     //RunCompiler("gcd.txt");
+    //RunCompiler("contador.txt");
 }

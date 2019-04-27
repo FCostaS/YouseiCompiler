@@ -1,4 +1,4 @@
-typedef enum {Empty,Constant, Variable, Mark, Call_Value, ArrVariable} TypeOP;
+typedef enum {Empty,Constant, Variable, Mark, Call_Value, ArrVariable,ArrEmpty} TypeOP;
 
 typedef enum {ADD, SUB, MULT, DIV, INC, DEC, AND, OR,
               NOT, XOR, ADDI, MOVE, SLt,slte,sbt,sbte,equal,diff,
@@ -6,7 +6,8 @@ typedef enum {ADD, SUB, MULT, DIV, INC, DEC, AND, OR,
               SGT, SET, MOD, JR, JAL, LI, PUSH, POP,CALL,HALT,RETURNi} Instructions;
 
 typedef enum{z0,r0,a0,a1,a2,a3,a4,a5,t0 ,t1,
-             t2,t3,t4,t5,t6,t7,t8,t9,t10,t11,} RegBank;
+             t2,t3,t4,t5,t6,t7,t8,t9,t10,s0,
+             s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,sp} RegBank;
 
 typedef struct {
   TypeOP kind;
@@ -22,37 +23,9 @@ typedef struct Quadr{
       struct Quadr *next;
 }Quadruple;
 
-typedef struct MyStack{
-      Operand Op[32];
-      int Topo;
-}StackRegs;
-
-StackRegs Stack;
-
-void Start(StackRegs *R)
-{
-    R->Topo = 0;
-}
-
-void Push(Operand Op,StackRegs *R) /* Insere na pilha */
-{
-      R->Op[R->Topo] = Op;
-      R->Topo++;
-}
-
-Operand Pop(StackRegs *R)
-{
-    R->Topo--;
-    return NULL;
-}
-
-Operand Consulte(StackRegs *R)
-{
-    return R->Op[R->Topo-1];
-}
-
 int LineCode = 0;
-int Reg = 9,Label = 0,ARGS = 3,GeralReg = 19;
+int Label = 0,Reg = 8,ARGS = 2,GeralReg = 18;
+int Assign_Type;
 char * InstructionsNames[] = {"add","sub","mult","div","inc","dec",
                               "and","or","not","xor","addi","move",
                               "slt","slte","sbt","sbte","equal","diff",
@@ -62,9 +35,10 @@ char * InstructionsNames[] = {"add","sub","mult","div","inc","dec",
                               "pop","call","halt","return"};
 
 
-char *RegistersBank[] =   {"$z0","$r0","$v0","$a0","$a1","$a2","$a3","$a4","$a5",
+char *RegistersBank[] =   {"$z0","$r0","$a0","$a1","$a2","$a3","$a4","$a5",
                           "$t0","$t1","$t2","$t3","$t4","$t5","$t6","$t7",
-                          "$t8","$t9","t10","t11","$s0","$s1"};
+                          "$t8","$t9","t10","t11","$s0","$s1","$s2","$s3",
+                          "$s4","$s5","$s6","$s7","$s8","$s9","$s10","$sp"};
 
 
 char *TypeInstruction(Instructions i){ return InstructionsNames[i]; }
@@ -94,12 +68,11 @@ char *GiveMeLabel()
 char *GiveMeArgs()
 {
     char* buffer = (char*)malloc(5*sizeof(char));
-    sprintf(buffer,"%s",TypeRegister(ARGS));
-    ARGS++;
+    sprintf(buffer,"%s",TypeRegister(ARGS++));
     return buffer;
 }
 
-void ResetArg(){ ARGS = 3; }
+void ResetArg(){ ARGS = 2; }
 
 char *ShowMeTemporary()
 {
@@ -117,6 +90,6 @@ char *ShowMeArgs()
 
 char *Int2String(int i)
 {
-  char* buffer = (char*)malloc(5*sizeof(char)); sprintf(buffer,"%d",i);
-  return buffer;
+    char* buffer = (char*)malloc(5*sizeof(char)); sprintf(buffer,"%d",i);
+    return buffer;
 }

@@ -12,8 +12,8 @@ FILE *code;
 
 // Flags
 int Lexical = FALSE;
-int Arvore  = TRUE;
-int TSymbol = TRUE;
+int Arvore  = FALSE;
+int TSymbol = FALSE;
 
 // Funcoes
 void RunCompiler(char* codename);

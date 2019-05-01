@@ -24,8 +24,8 @@ typedef struct Quadr{
 }Quadruple;
 
 int LineCode = 0;
-int Label = 0,Reg = 8,ARGS = 2,GeralReg = 18;
-int Assign_Type;
+int Label = 0,Reg = 8,ARGS = 2,GeralReg = 20;
+int Assign_Type = 1;
 char * InstructionsNames[] = {"add","sub","mult","div","inc","dec",
                               "and","or","not","xor","addi","move",
                               "slt","slte","sbt","sbte","equal","diff",
@@ -33,7 +33,6 @@ char * InstructionsNames[] = {"add","sub","mult","div","inc","dec",
                               "beq","bne","nop","sll","srl","sgt",
                               "set","mod","jr","jal","li","push",
                               "pop","call","halt","return"};
-
 
 char *RegistersBank[] =   {"$z0","$r0","$a0","$a1","$a2","$a3","$a4","$a5",
                           "$t0","$t1","$t2","$t3","$t4","$t5","$t6","$t7",
@@ -46,15 +45,13 @@ char *TypeInstruction(Instructions i){ return InstructionsNames[i]; }
 char *TypeRegister(RegBank Re){ return RegistersBank[Re]; }
 
 void PrintQuadruple(Instructions I,Operand Op1,Operand Op2, Operand Op3, char *Message)
-{
-   printf("%d: (%s,%s,%s,%s)\t\t%s\n",LineCode++,TypeInstruction(I),Op1->Variable,Op2->Variable,Op3->Variable,Message);
-}
+{ printf("%d: (%s,%s,%s,%s)\t\t%s\n",LineCode++,TypeInstruction(I),Op1->Variable,Op2->Variable,Op3->Variable,Message); }
 
+/* Função de atribuição temporária, sem gerenciamento */
 char *GiveMeTemporary()
 {
     char* buffer = (char*)malloc(5*sizeof(char));
-    sprintf(buffer,"%s",TypeRegister(Reg));
-    Reg++;
+    sprintf(buffer,"%s",TypeRegister(Reg++));
     return buffer;
 }
 
@@ -72,7 +69,12 @@ char *GiveMeArgs()
     return buffer;
 }
 
-void ResetArg(){ ARGS = 2; }
+char *GiveMeGeral()
+{
+    char* buffer = (char*)malloc(5*sizeof(char));
+    sprintf(buffer,"%s",TypeRegister(GeralReg++));
+    return buffer;
+}
 
 char *ShowMeTemporary()
 {
@@ -87,6 +89,10 @@ char *ShowMeArgs()
     sprintf(buffer,"%s",TypeRegister(ARGS));
     return buffer;
 }
+
+void ResetArg(){ ARGS = 2; }
+void ResetTemp(){ Reg = 8; }
+/**************************************************/
 
 char *Int2String(int i)
 {

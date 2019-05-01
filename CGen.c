@@ -10,10 +10,10 @@ static void genExpK( TreeNode * t);
 static void genStmtK( TreeNode * tree);
 static void genDeclK( TreeNode * t);*/
 
-int i;
+int i,ArrControl;
 int CurrentInst;
 char *CurrentFunction;
-Operand CurrentOpK,OperadorVazio;
+Operand CurrentOpK,OperadorVazio,OperadorZero;
 
 /**********************************************************************/
 static Operand AllocOp()
@@ -107,11 +107,11 @@ static void genExpK( TreeNode * t)
             Op1 = CurrentOpK;
             Op2 = InsertOperand(ArrVariable,t->attr.name,t->attr.val);
             CurrentOpK = InsertOperand(ArrEmpty,GiveMeTemporary(),Reg-1);
-            if(Assign_Type==0) PrintQuadruple(LOAD,CurrentOpK,Op2,Op1,"-- Fazendo leitura da memória p/ registrador");
-            else PrintQuadruple(STORE,CurrentOpK,Op2,Op1,"-- Fazendo gravação do registrador p/ memória");
+            if(Assign_Type){ PrintQuadruple(LOAD,CurrentOpK,Op2,Op1,"-- Fazendo leitura da memória p/ registrador"); }
+            else{ PrintQuadruple(ADD,CurrentOpK,Op2,Op1,"-- Calculando endereço da memória"); }
         break;
 
-        case CallK:   // Chamada de Função (Análise de Argumentos da Função)
+        case CallK:   // Chamada de Função (Análise de Argumentos da Função
               args = 0;
 
               for(p1=t->child[0]; p1!=NULL;p1 = p1->sibling)
@@ -124,16 +124,15 @@ static void genExpK( TreeNode * t)
               }
 
               p1 = t;
+              ResetArg();
               if( strcmp(t->attr.name,"output") != 0 )
               {
                   Op1 = InsertOperand(Variable,p1->attr.name,-1);
                   PrintQuadruple(CALL,Op1,OperadorVazio,OperadorVazio,"");
                   CurrentOpK = Op1;
-                  ResetArg();
               } // Tratando caso em que a chamada é output
               else
               {
-                ResetArg();
                 PrintQuadruple(OUT,CurrentOpK,OperadorVazio,OperadorVazio,"");
               }
         break;
@@ -236,28 +235,42 @@ static void genStmtK( TreeNode * tree)
           p1 = tree->child[0];
           p2 = tree->child[1];
 
-          Assign_Type = 1; // Tipo gravação
+          Assign_Type = 1; // Tipo LOAD
           cGen(p2);
-          /*if( p2->kind.exp == CallK && strcmp(p2->attr.name,"input") == 0 )
-          {
-              l = st_lookup_Full(p1->attr.name,CurrentFunction);
-              op1 = InsertOperand(Variable,p1->attr.name,-1);
-              PrintQuadruple(IN,CurrentOpK,OperadorVazio,OperadorVazio,"");
-          }*/
           op2 = CurrentOpK;
 
-          Assign_Type = 0; // Tipo gravação
+          Assign_Type = 0; // Tipo STORE
           cGen(p1);
           op1 = CurrentOpK;
 
-          PrintQuadruple(MOVE,op1,op2,OperadorVazio,"");
+          ArrControl = 0;
+          ResetTemp();
 
+          /*if(p2->kind.exp == ArrIdK)
+          {
+              PrintQuadruple(LOAD,op1,op2,OperadorZero,"");
+              ArrControl++;
+          }*/
+
+          if(p1->kind.exp == ArrIdK)
+          {
+              PrintQuadruple(STORE,op2,op1,OperadorZero,"");
+              ArrControl++;
+          }
+
+          // Se manipulei vetores, então não percorre
+          if(ArrControl == 0){ PrintQuadruple(MOVE,op1,op2,OperadorVazio,""); }
+
+          Assign_Type = 1; // Renova atribuição
           break;
+
           case CompoundK:
               ResetArg(); // Quando iniciar declaração de variável, eu zero o registrador de argumentos
               for (i=0; i < MAXCHILDREN; i++) { cGen(tree->child[i]); }
           break;
+
           case ReturnK:
+                  ResetTemp();
                   cGen(tree->child[0]); // Invoca Jump Register
                   PrintQuadruple(RETURNi,CurrentOpK,OperadorVazio,OperadorVazio,"");
           break;
@@ -293,7 +306,7 @@ static void genDeclK( TreeNode * t)
             case ArrVarK:
 
               l = st_lookup_Full(t->attr.arr.name,CurrentFunction);
-              Op2 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);             // Registrador Zero
+              Op2 = InsertOperand(Empty,GiveMeGeral(),GeralReg-1);             // Registrador Zero
               Op1 = InsertOperand(ArrVariable,t->attr.arr.name,l->memloc); // Nome da variável
               PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"-- Reserva registrador geral para vetor");
 
@@ -301,7 +314,7 @@ static void genDeclK( TreeNode * t)
             case VarK:
 
               l = st_lookup_Full(t->attr.name,CurrentFunction);
-              Op2 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);             // Registrador Zero
+              Op2 = InsertOperand(Empty,GiveMeGeral(),GeralReg-1);             // Registrador Zero
               Op1 = InsertOperand(Variable,t->attr.name,l->memloc); // Nome da variável
               PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"-- Reserva registrador geral");
 
@@ -344,6 +357,7 @@ void codeGen(TreeNode * syntaxTree, char * codefile)
     printf("[Intermediary Code]\n");
     CurrentFunction = "Global";
     OperadorVazio = InsertOperand(Empty,"_",-1);
+    OperadorZero  = InsertOperand(Empty,"0",0);
     cGen(syntaxTree);
     PrintQuadruple(HALT,OperadorVazio,OperadorVazio,OperadorVazio,"-- Fim do programa");
 }

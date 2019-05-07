@@ -2,8 +2,8 @@
 #include <string.h>
 #include "Globals.h"
 #include "SymbolTab.h"
-#include "CGen.h"
 #include "CodeGeass.h"
+#include "CGen.h"
 
 /*static void cGen( TreeNode * tree);
 static void genExpK( TreeNode * t);
@@ -16,12 +16,6 @@ char *CurrentFunction;
 Operand CurrentOpK,OperadorVazio,OperadorZero;
 
 /**********************************************************************/
-static Operand AllocOp()
-{
-    Operand O = (Operand)malloc(sizeof(Operand));
-    O->Local = NULL;
-    return O;
-}
 
 static Operand InsertOperand(TypeOP expo,char *nameVariable,int constant)
 {
@@ -113,6 +107,15 @@ static void genExpK( TreeNode * t)
 
         case CallK:   // Chamada de Função (Análise de Argumentos da Função
               args = 0;
+              ARGS = 2;
+              if(strcmp(t->attr.name,"input")==0)
+              {
+                  Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
+                  PrintQuadruple(IN,Op1,OperadorVazio,OperadorVazio,"");
+                  CurrentOpK = Op1;
+                  args++;
+                  return;
+              }
 
               for(p1=t->child[0]; p1!=NULL;p1 = p1->sibling)
               {
@@ -272,7 +275,9 @@ static void genStmtK( TreeNode * tree)
           case ReturnK:
                   ResetTemp();
                   cGen(tree->child[0]); // Invoca Jump Register
-                  PrintQuadruple(RETURNi,CurrentOpK,OperadorVazio,OperadorVazio,"");
+                  op1 = InsertOperand(Empty,RegistersBank[30],30);
+                  CurrentOpK = op1;
+                  PrintQuadruple(MOVE,op1,CurrentOpK,OperadorVazio,"");
           break;
           default: printf("Você me esqueceu parça stmt!\n"); break;
       }
@@ -305,18 +310,21 @@ static void genDeclK( TreeNode * t)
             break; // Util na atribuição de Registradores Gerais
             case ArrVarK:
 
-              l = st_lookup_Full(t->attr.arr.name,CurrentFunction);
+              /*l = st_lookup_Full(t->attr.arr.name,CurrentFunction);
               Op2 = InsertOperand(Empty,GiveMeGeral(),GeralReg-1);             // Registrador Zero
               Op1 = InsertOperand(ArrVariable,t->attr.arr.name,l->memloc); // Nome da variável
               PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"-- Reserva registrador geral para vetor");
+              */
 
             break; // Util na atribuição de Registradores Temporários
             case VarK:
 
+              /*
               l = st_lookup_Full(t->attr.name,CurrentFunction);
               Op2 = InsertOperand(Empty,GiveMeGeral(),GeralReg-1);             // Registrador Zero
               Op1 = InsertOperand(Variable,t->attr.name,l->memloc); // Nome da variável
               PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"-- Reserva registrador geral");
+              */
 
             break; // Util na atribuição de Registradores Temporários
             case FunK:              // Percorre as funções presentes no programa
@@ -360,4 +368,62 @@ void codeGen(TreeNode * syntaxTree, char * codefile)
     OperadorZero  = InsertOperand(Empty,"0",0);
     cGen(syntaxTree);
     PrintQuadruple(HALT,OperadorVazio,OperadorVazio,OperadorVazio,"-- Fim do programa");
+    ShowMeQuadruplas();
+}
+/*******************************************************/
+
+void AssemblyGenerator(Quadruple *Q)
+{
+      if(Q==NULL) return;
+      char *Instruct = TypeInstruction(Q->Inst);
+
+      switch (Q->Inst)
+      {
+          case NOP:
+              printf("%s:\n",Q->Op1->Variable);
+          break;
+
+          case MOVE:
+              printf("\t%s %s,%s\n",Instruct,Q->Op1->Variable,Q->Op2->Variable);
+          break;
+
+          case RETURNi:
+              printf("\tjr %s\n",Q->Op1->Variable);
+          break;
+
+          case JR:
+              printf("\t%s %s\n",Instruct,Q->Op1->Variable);
+          break;
+
+          case JUMP:
+              printf("\t%s %s\n",Instruct,Q->Op1->Variable);
+          break;
+
+          case CALL:
+              printf("\tjal %s\n",Q->Op1->Variable);
+          break;
+
+          case OUT:
+              printf("\t%s %s\n",Instruct,Q->Op1->Variable);
+          break;
+
+          case IN:
+              printf("\t%s %s\n",Instruct,Q->Op1->Variable);
+          break;
+
+          case HALT:
+              printf("\t%s\n",Instruct);
+          break;
+
+          default:
+              printf("\t%s %s,%s,%s\n",Instruct,Q->Op1->Variable,Q->Op2->Variable,Q->Op3->Variable);
+          break;
+      }
+      AssemblyGenerator(Q->next);
+}
+
+void Assembly()
+{
+    printf("\n[Assembly Generator]\n");
+    AssemblyGenerator(IntermediaryFirst);
 }

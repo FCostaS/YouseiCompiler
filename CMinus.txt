@@ -1,4 +1,5 @@
-/* programa para ordenação por seleção de uma matriz com dez elementos. */
+/* programa para ordena��o por sele��o de
+   uma matriz com dez elementos. */
 
 int vet[ 10 ];
 
@@ -28,7 +29,6 @@ void sort( int a[], int low, int high)
 		a[i] = t;
 		i = i + 1;
 	}
-	return sort();
 }
 
 void main(void)

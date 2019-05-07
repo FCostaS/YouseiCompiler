@@ -35,6 +35,7 @@ void RunCompiler(char* codename)
         }
         buildSymtab(syntax);
         codeGen(syntax,codename);
+        Assembly();
       }
       CloseCode();
 }

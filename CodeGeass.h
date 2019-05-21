@@ -1,4 +1,4 @@
-typedef enum {Empty,Constant, Variable, Mark, Call_Value, ArrVariable,ArrEmpty} TypeOP;
+typedef enum {Empty,Constant, Variable, Mark, Call_Value, ArrVariable,ArrEmpty,ArrParam} TypeOP;
 
 typedef enum {ADD, SUB, MULT, DIV, INC, DEC, AND, OR,
               NOT, XOR, ADDI, MOVE, SLt,slte,sbt,sbte,equal,diff,
@@ -8,6 +8,11 @@ typedef enum {ADD, SUB, MULT, DIV, INC, DEC, AND, OR,
 typedef enum{z0,r0,a0,a1,a2,a3,a4,a5,t0 ,t1,
              t2,t3,t4,t5,t6,t7,t8,t9,t10,s0,
              s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,sp} RegBank;
+
+typedef struct {
+    int Address;
+    char *Name;
+} *AssemblyOp;
 
 typedef struct {
   TypeOP kind;

@@ -1,27 +1,17 @@
 /* Contador crescente e decrescente */
 
-int contRec(int i)
-{
-		if(i<10)
-		{
-				output(i);
-				return contRec(i+1);
-		}
-}
 
 void main(void)
 {
 	int i;
-	int a[10];
 
 	i = 0;
+
 	while(i < 10)
 	{
 		i = i + 1;
 		output(i);
 	}
-
-	a[i] = 1;
 
 	/*while(i >= 0)
 	{

@@ -13,7 +13,7 @@ FILE *code;
 // Flags
 int Lexical = FALSE;
 int Arvore  = FALSE;
-int TSymbol = FALSE;
+int TSymbol = TRUE;
 
 // Funcoes
 void RunCompiler(char* codename);

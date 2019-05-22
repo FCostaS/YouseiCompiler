@@ -4,6 +4,7 @@
 #include "SymbolTab.h"
 #include "CodeGeass.h"
 #include "CGen.h"
+#include "Binary.h"
 
 /*static void cGen( TreeNode * tree);
 static void genExpK( TreeNode * t);
@@ -392,11 +393,19 @@ AssemblyOp InsertOperandAssembly(int Address,char *NameOp)
     return new;
 }
 
+
 void InsertAssembly(Instructions I,AssemblyOp Op1,AssemblyOp Op2,AssemblyOp Op3)
 {
     char *Inst = TypeInstruction(I);
 
-    printf("\t%s\t%s %s %s\n",Inst,Op1->Name,Op2->Name,Op3->Name);
+    if(I == STORE || I == LOAD)
+    {
+        printf("\t%s\t%s %s(%s)\n",Inst,Op1->Name,Op2->Name,Op3->Name);
+    }
+      else
+      {
+          printf("\t%s\t%s %s %s\n",Inst,Op1->Name,Op2->Name,Op3->Name);
+      }
 }
 
 AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
@@ -492,7 +501,7 @@ void AssemblyGenerator(Quadruple *Q)
           case LI:
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,1);
-              InsertAssembly(ADDI,Op1,Op2,AssemblyZero);
+              InsertAssembly(ADDI,Op1,AssemblyZero,Op2);
           break;
 
           case ADD:
@@ -534,7 +543,7 @@ void AssemblyGenerator(Quadruple *Q)
 void Assembly()
 {
     printf("\n[Assembly Generator]\n");
-    AssemblyZero = InsertOperandAssembly(0,Int2String(0));
+    AssemblyZero = InsertOperandAssembly(0,TypeRegister(0));
     AssemblyNulo = InsertOperandAssembly(0,"");
     AssemblyGenerator(IntermediaryFirst);
 }

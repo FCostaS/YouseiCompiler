@@ -9,6 +9,8 @@ typedef enum{z0,r0,a0,a1,a2,a3,a4,a5,t0 ,t1,
              t2,t3,t4,t5,t6,t7,t8,t9,t10,s0,
              s1,s2,s3,s4,s5,s6,s7,s8,s9,s10,sp} RegBank;
 
+typedef enum{R,I,J} FormaInstruction;
+
 typedef struct {
     int Address;
     char *Name;
@@ -26,9 +28,29 @@ typedef struct Quadr{
       Instructions Inst;
       int IndexLine;
       struct Quadr *next;
+      char *BinaryMode;
 }Quadruple;
 
+typedef struct Assembly{
+      char *BinaryMode;
+      char *AssemblyMode;
+      AssemblyOp Op1,Op2,Op3;
+      int IndexLine;
+      FormaInstruction Type;
+      Instructions I;
+      struct Assembly *next;
+}AssemblyInst;
+
 Quadruple *Intermediary = NULL,*IntermediaryFirst;
+AssemblyInst *AssemblyList = NULL, *AssemblyFirst;
+
+typedef struct Marks{
+    char *MarkName;
+    int LineMark;
+    struct Marks *next;
+}Marker;
+
+Marker *Markers = NULL, *MarkFirst;
 
 int LineCode = 0;
 int Label = 0,Reg = 8,ARGS = 2,GeralReg = 20;
@@ -36,7 +58,7 @@ int Assign_Type = 1;
 char * InstructionsNames[] = {"add","sub","mult","div","inc","dec",
                               "and","or","not","xor","addi","move",
                               "slt","slte","sbt","sbte","equal","diff",
-                              "jump","load","store","in","out",
+                              "jump","lw","sw","in","out",
                               "beq","bne","nop","sll","srl","sgt",
                               "set","mod","jr","jal","li","push",
                               "pop","call","halt","return"};
@@ -56,6 +78,34 @@ static Operand AllocOp()
     Operand O = (Operand)malloc(sizeof(Operand));
     O->Local = NULL;
     return O;
+}
+
+void InsertMark(char *NameMark, int MarkNumber)
+{
+      Marker *new = (Marker*)malloc(sizeof(Marker));
+      if(Markers == NULL)
+      {
+          MarkFirst = new;
+          Markers   = new;
+      }
+      Markers->next = new;
+      new->MarkName = NameMark;
+      new->LineMark = MarkNumber;
+      new->next = NULL;
+      Markers = new;
+}
+
+int SearchMark(char *name)
+{
+      Marker *i;
+      for(i = MarkFirst; i!=NULL; i=i->next)
+      {
+          if(strcmp(name,i->MarkName)==0)
+          {
+              return i->LineMark;
+          }
+      }
+      return -1;
 }
 
 void PrintQuadruple(Instructions I,Operand Op1,Operand Op2, Operand Op3, char *Message)

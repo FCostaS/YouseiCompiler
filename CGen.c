@@ -374,7 +374,7 @@ static void cGen( TreeNode * tree)
 
 void codeGen(TreeNode * syntaxTree, char * codefile)
 {
-    printf("[Intermediary Code]\n");
+    printf("\033[01;33m"); printf("[Intermediary Code]\n"); printf("\033[0m");
     CurrentFunction = "Global";
     OperadorVazio = InsertOperand(Empty,"_",0);
     OperadorZero  = InsertOperand(Empty,"0",0);
@@ -384,6 +384,7 @@ void codeGen(TreeNode * syntaxTree, char * codefile)
 }
 /*******************************************************/
 AssemblyOp AssemblyZero, AssemblyNulo;
+int IndexAssembly = 0;
 
 AssemblyOp InsertOperandAssembly(int Address,char *NameOp)
 {
@@ -394,23 +395,60 @@ AssemblyOp InsertOperandAssembly(int Address,char *NameOp)
 }
 
 
-void InsertAssembly(Instructions I,AssemblyOp Op1,AssemblyOp Op2,AssemblyOp Op3)
+void InsertAssembly(int Type, Instructions I,AssemblyOp Op1,AssemblyOp Op2,AssemblyOp Op3,char *BinChar)
 {
     char *Inst = TypeInstruction(I);
+    AssemblyInst *new = (AssemblyInst*)malloc(sizeof(AssemblyInst));
+    char *MyinstructionBuffer = (char*)malloc(40*sizeof(char));
 
     if(I == STORE || I == LOAD)
     {
-        printf("\t%s\t%s %s(%s)\n",Inst,Op1->Name,Op2->Name,Op3->Name);
+        sprintf(MyinstructionBuffer,"%s\t%s %s(%s)",Inst,Op1->Name,Op2->Name,Op3->Name);
     }
-      else
+      else if (I == NOP )
       {
-          printf("\t%s\t%s %s %s\n",Inst,Op1->Name,Op2->Name,Op3->Name);
+        sprintf(MyinstructionBuffer,"%s %s",Inst,Op1->Name);
       }
+        else
+        {
+            sprintf(MyinstructionBuffer,"%s\t%s %s %s",Inst,Op1->Name,Op2->Name,Op3->Name);
+        }
+
+    if(AssemblyList == NULL)
+    {
+        AssemblyFirst  = new;
+        AssemblyList   = new;
+    }
+
+    AssemblyList->next = new;
+    new->AssemblyMode  = MyinstructionBuffer;
+    new->BinaryMode    = BinChar;
+    new->IndexLine     = IndexAssembly++;
+    new->Type          = Type;
+
+    new->Op1           = Op1;
+    new->Op2           = Op2;
+    new->Op3           = Op3;
+
+    new->I             = I;
+
+    /* Type Flag
+    0: Tipo R
+    1: Tipo I
+    2: Tipp J
+    */
+
+    new->next          = NULL;
+    AssemblyList       = new;
 }
+
 
 AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
 {
     AssemblyOp A, B, C;
+    char *BinInstruction;
+    int HaveMark;
+
     switch (Op->kind)
     {
       case Variable:
@@ -419,7 +457,8 @@ AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
                 A = InsertOperandAssembly(TypeValueAssembly+20,TypeRegister(TypeValueAssembly+20));
                 B = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc));
                 C = AssemblyZero;
-                InsertAssembly(LOAD,A,B,C);
+                BinInstruction= TypeI(LOAD,B->Address,A->Address,C->Address);
+                InsertAssembly(1,LOAD,A,B,C,BinInstruction);
             }
               else
               {
@@ -436,93 +475,118 @@ AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
       break;
 
       case Mark:
-          A = InsertOperandAssembly(0,Op->Variable);
+          HaveMark = SearchMark(Op->Variable);
+          A = InsertOperandAssembly(HaveMark,Op->Variable);
           return A;
       break;
 
       default:
-          A = InsertOperandAssembly(0,Op->Variable);
+          A = InsertOperandAssembly(Op->val,Op->Variable);
           return A;
       break;
     }
 }
+
 
 void AssemblyGenerator(Quadruple *Q)
 {
       if(Q==NULL) return;
 
       AssemblyOp Op1,Op2,Op3;
-
+      char *BinInstruction = NULL;
 
       char *Instruct = TypeInstruction(Q->Inst);
+
       switch (Q->Inst)
       {
           case NOP:
-              printf("%s:\n",Q->Op1->Variable);
+              InsertMark(Q->Op1->Variable,IndexAssembly);
+              BinInstruction = TypeJ(NOP,0);
+              Op1 = GiveMeANumber(Q->Op1,0);
+              InsertAssembly(J,NOP,Op1,AssemblyZero,AssemblyZero,BinInstruction);
           break;
 
-          case STORE:
+          case STORE: // OK
+              // Nem sempre será 0
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,2);
-              InsertAssembly(Q->Inst,Op1,Op2,AssemblyZero);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeI(STORE,Op2->Address,Op1->Address,Op3->Address);
+              InsertAssembly(I,STORE,Op1,Op2,AssemblyZero,BinInstruction);
           break;
 
-          case MOVE:
+          case LOAD: // OK
+              // Nem sempre será 0
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,2);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeI(LOAD,Op2->Address,Op1->Address,Op3->Address);
+              InsertAssembly(I,LOAD,Op1,Op2,AssemblyZero,BinInstruction);
+          break;
+
+          case MOVE: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,1);
-              InsertAssembly(MOVE,Op1,Op2,AssemblyZero);
-              //printf("\t%s %s,%s\n",Instruct,Q->Op1->Variable,Q->Op2->Variable);
+              BinInstruction = TypeR(MOVE,Op1->Address,Op2->Address,0,0);
+              InsertAssembly(R,MOVE,Op1,Op2,AssemblyNulo,BinInstruction);
           break;
 
-          case JUMP:
+          case JUMP: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
-              InsertAssembly(JUMP,Op1,AssemblyNulo,AssemblyNulo);
+              BinInstruction = TypeJ(JUMP,Op1->Address);
+              InsertAssembly(J,JUMP,Op1,AssemblyNulo,AssemblyNulo,BinInstruction);
           break;
 
           case CALL:
               Op1 = GiveMeANumber(Q->Op1,0);
-              InsertAssembly(CALL,Op1,AssemblyNulo,AssemblyNulo);
+              //InsertAssembly(CALL,Op1,AssemblyNulo,AssemblyNulo,BinInstruction);
           break;
 
-          case OUT:
+          case OUT: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
-              InsertAssembly(OUT,Op1,AssemblyNulo,AssemblyNulo);
+              BinInstruction = TypeI(OUT,Op1->Address,0,0);
+              InsertAssembly(I,OUT,Op1,AssemblyNulo,AssemblyNulo,BinInstruction);
           break;
 
           case IN:
               Op1 = GiveMeANumber(Q->Op1,0);
-              InsertAssembly(IN,Op1,AssemblyNulo,AssemblyNulo);
+              InsertAssembly(I,IN,Op1,AssemblyNulo,AssemblyNulo,BinInstruction);
           break;
 
-          case HALT:
-              InsertAssembly(HALT,AssemblyNulo,AssemblyNulo,AssemblyNulo);
+          case HALT: // OK
+              BinInstruction = TypeJ(JUMP,IndexAssembly);
+              InsertAssembly(J,HALT,AssemblyNulo,AssemblyNulo,AssemblyNulo,BinInstruction);
           break;
 
-          case LI:
+          case LI: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,1);
-              InsertAssembly(ADDI,Op1,AssemblyZero,Op2);
+              BinInstruction = TypeI(ADDI,AssemblyZero->Address,Op1->Address,Op2->Address);
+              InsertAssembly(I,ADDI,Op1,AssemblyZero,Op2,BinInstruction);
           break;
 
-          case ADD:
+          case ADD: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,0);
               Op3 = GiveMeANumber(Q->Op3,1);
-              InsertAssembly(ADD,Op1,Op2,Op3);
+              BinInstruction = TypeR(ADD,Op2->Address,Op3->Address,Op1->Address,0);
+              InsertAssembly(R,ADD,Op1,Op2,Op3,BinInstruction);
           break;
 
-          case BEQ:
+          case BEQ: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,0);
               Op3 = GiveMeANumber(Q->Op3,1);
-              InsertAssembly(BEQ,Op1,Op2,Op3);
+              BinInstruction = TypeI(BEQ,Op1->Address,Op2->Address,Op3->Address);
+              InsertAssembly(I,BEQ,Op1,Op2,Op3,BinInstruction);
           break;
 
-          case SLt:
+          case SLt: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,0);
               Op3 = GiveMeANumber(Q->Op3,1);
-              InsertAssembly(SLt,Op1,Op2,Op3);
+              BinInstruction = TypeR(SLt,Op3->Address,Op2->Address,Op1->Address,0);
+              InsertAssembly(R,SLt,Op1,Op2,Op3,BinInstruction);
           break;
 
           case RETURNi:
@@ -537,13 +601,50 @@ void AssemblyGenerator(Quadruple *Q)
               printf("\t%s %s,%s,%s\n",Instruct,Q->Op1->Variable,Q->Op2->Variable,Q->Op3->Variable);
           break;
       }
+      Q->BinaryMode = BinInstruction;
       AssemblyGenerator(Q->next);
+}
+
+void BinaryPrint()
+{
+    AssemblyInst *it = AssemblyFirst;
+    printf("\033[01;33m"); printf("\n[Binary and Assembly Generator]\n"); printf("\033[0m\n");
+    while(it!=NULL)
+    {
+          printf("Memory[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
+          it = it->next;
+    }
+}
+
+void CorrectionMarks()
+{
+    AssemblyInst *it = AssemblyFirst;
+    int im;
+    char *im_;
+    //printf("\033[01;33m"); printf("\n[Assembly Generator]\n"); printf("\033[0m\n");
+
+    while(it!=NULL)
+    {
+          im = strlen(it->BinaryMode);
+          if( im < 33 )
+          {
+                int k = SearchMark(it->Op3->Name);
+                im_ = BinarizeMe(k,33-im);
+                strcat(it->BinaryMode,im_);
+          }
+            else
+            {
+                printf("%s\n",it->BinaryMode);
+            }
+          it = it->next;
+    }
 }
 
 void Assembly()
 {
-    printf("\n[Assembly Generator]\n");
     AssemblyZero = InsertOperandAssembly(0,TypeRegister(0));
     AssemblyNulo = InsertOperandAssembly(0,"");
     AssemblyGenerator(IntermediaryFirst);
+    CorrectionMarks();
+    BinaryPrint();
 }

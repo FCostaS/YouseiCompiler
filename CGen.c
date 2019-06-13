@@ -42,6 +42,13 @@ static Operand InsertOperand(TypeOP expo,char *nameVariable,int constant)
           Op->Variable = nameVariable;
       break;
 
+      case Param:
+          Op->Variable = nameVariable;
+          Op->Local = st_lookup_Full(nameVariable,CurrentFunction);
+          if(Op->Local==NULL)
+          { Op->Local = st_lookup_Full(nameVariable,"Global"); }
+      break;
+
       case Call_Value:
           Op->Variable = nameVariable;
       break;
@@ -52,6 +59,9 @@ static Operand InsertOperand(TypeOP expo,char *nameVariable,int constant)
 
       case ArrVariable:
           Op->Variable = nameVariable;
+          Op->Local = st_lookup_Full(nameVariable,CurrentFunction);
+          if(Op->Local==NULL)
+          { Op->Local = st_lookup_Full(nameVariable,"Global"); }
       break;
 
       case ArrEmpty:
@@ -112,7 +122,7 @@ static void genExpK( TreeNode * t)
             Op2 = InsertOperand(ArrVariable,t->attr.name,-1);
             CurrentOpK = InsertOperand(ArrEmpty,GiveMeTemporary(),Reg-1);
             if(Assign_Type){ PrintQuadruple(LOAD,CurrentOpK,Op2,Op1,"-- Fazendo leitura da memória p/ registrador"); }
-            else{ PrintQuadruple(ADD,CurrentOpK,Op2,Op1,"-- Calculando endereço da memória"); }
+            else{ PrintQuadruple(LI,CurrentOpK,Op2,Op1,"-- Calculando endereço da memória"); }
         break;
 
         case CallK:   // Chamada de Função (Análise de Argumentos da Função
@@ -120,7 +130,7 @@ static void genExpK( TreeNode * t)
               ARGS = 2;
               if(strcmp(t->attr.name,"input")==0)
               {
-                  Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
+                  Op1 = InsertOperand(Empty,GiveMeArgs(),2);
                   PrintQuadruple(IN,Op1,OperadorVazio,OperadorVazio,"");
                   CurrentOpK = Op1;
                   args++;
@@ -130,14 +140,14 @@ static void genExpK( TreeNode * t)
               for(p1=t->child[0]; p1!=NULL;p1 = p1->sibling)
               {
                   genExpK(p1);
-                  Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
+                  Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS);
                   PrintQuadruple(MOVE,Op1,CurrentOpK,OperadorZero,"");
                   CurrentOpK = Op1;
                   args++;
               }
 
               p1 = t;
-              ResetArg();
+
               if( strcmp(t->attr.name,"output") != 0 )
               {
                   Op1 = InsertOperand(Call_Value,p1->attr.name,-1);
@@ -267,7 +277,7 @@ static void genStmtK( TreeNode * tree)
 
           if(p1->kind.exp == ArrIdK)
           {
-              PrintQuadruple(STORE,op2,op1,OperadorZero,"");
+              PrintQuadruple(STORE,op2,OperadorZero,op1,"");
               ArrControl++;
           }
           else
@@ -295,11 +305,22 @@ static void genStmtK( TreeNode * tree)
       }
 }
 
+void StackArguments(TreeNode * t)
+{
+    if(t!=NULL)
+    {
+          StackArguments(t->sibling);
+          genDeclK(t);
+    }
+}
+
 static void genDeclK( TreeNode * t)
 {
       BucketList l;
       Operand Op1,Op2,Op3;
       int Curegister;
+      TreeNode *arguments;
+
       switch (t->kind.decl)
       {
             case ArrParamK:
@@ -313,9 +334,9 @@ static void genDeclK( TreeNode * t)
 
               if(t->attr.type==Void) return;
 
-              //Curegister = Reg;
+              Curegister = Reg;
               l = st_lookup_Full(t->attr.name,CurrentFunction);
-              Op1 = InsertOperand(Variable,t->attr.name,-1);
+              Op1 = InsertOperand(Param,t->attr.name,-1);
               Op2 = InsertOperand(Empty,GiveMeArgs(),ARGS);
               PrintQuadruple(STORE,Op2,Op1,OperadorZero,"-- Atribuindo argumentos da função");
 
@@ -344,13 +365,19 @@ static void genDeclK( TreeNode * t)
               CurrentFunction = t->attr.name;
               Op1 = InsertOperand(Mark,t->attr.name,LineCode); // Nome de função
               PrintQuadruple(NOP,Op1,OperadorVazio,OperadorVazio,"-- Início da Função | Reservando rôtulo");
-              for (i=0; i < MAXCHILDREN; i++){ cGen(t->child[i]); }
+
+              cGen(t->child[0]);
+              cGen(t->child[1]);
+              //StackArguments(t->child[1]);
+              cGen(t->child[2]); // Corpo da função
+
               if( strcmp("main",CurrentFunction) != 0)
               {PrintQuadruple(JR,InsertOperand(Empty,TypeRegister(1),1),OperadorVazio,OperadorVazio,"-- Fim de função");}
             break;
             default: printf("Você me esqueceu parça decl!\n"); break;
       }
 }
+
 
 static void cGen( TreeNode * tree)
 {
@@ -457,7 +484,7 @@ AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
                 A = InsertOperandAssembly(TypeValueAssembly+20,TypeRegister(TypeValueAssembly+20));
                 B = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc));
                 C = AssemblyZero;
-                BinInstruction= TypeI(LOAD,B->Address,A->Address,C->Address);
+                BinInstruction= TypeI(LOAD,C->Address,A->Address,B->Address);
                 InsertAssembly(1,LOAD,A,B,C,BinInstruction);
             }
               else
@@ -480,6 +507,46 @@ AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
           return A;
       break;
 
+      case Param:
+            if(TypeValueAssembly < 2) // Caso < 2: Quero um valor
+            {
+                A = InsertOperandAssembly(TypeValueAssembly+20,TypeRegister(TypeValueAssembly+20));
+                B = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc));
+                C = AssemblyZero;
+                BinInstruction= TypeI(LOAD,C->Address,A->Address,B->Address);
+                InsertAssembly(1,LOAD,A,B,C,BinInstruction);
+            }
+              else
+              {
+                  A = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc)); // Caso 1: Quero um endereço
+              }
+           return A;
+      break;
+
+      //case ArrParam:
+
+          /*if(TypeValueAssembly < 2) // Caso < 2: Quero um valor
+          {
+              A = InsertOperandAssembly(TypeValueAssembly+20,TypeRegister(TypeValueAssembly+20));
+              B = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc));
+              C = AssemblyZero;
+              BinInstruction= TypeI(LOAD,B->Address,A->Address,C->Address);
+              InsertAssembly(1,LOAD,A,B,C,BinInstruction);
+          }
+            else
+            {
+
+            }
+         return A;*/
+
+      case ArrVariable:
+
+          A = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc)); // Caso 1: Quero um endereço
+
+      return A;
+
+      break;
+
       default:
           A = InsertOperandAssembly(Op->val,Op->Variable);
           return A;
@@ -492,8 +559,9 @@ void AssemblyGenerator(Quadruple *Q)
 {
       if(Q==NULL) return;
 
-      AssemblyOp Op1,Op2,Op3;
+      AssemblyOp Op1,Op2,Op3,Op4;
       char *BinInstruction = NULL;
+      int NewIndex;
 
       char *Instruct = TypeInstruction(Q->Inst);
 
@@ -511,8 +579,8 @@ void AssemblyGenerator(Quadruple *Q)
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,2);
               Op3 = GiveMeANumber(Q->Op3,1);
-              BinInstruction = TypeI(STORE,Op2->Address,Op1->Address,Op3->Address);
-              InsertAssembly(I,STORE,Op1,Op2,AssemblyZero,BinInstruction);
+              BinInstruction = TypeI(STORE,Op3->Address,Op1->Address,Op2->Address);
+              InsertAssembly(I,STORE,Op1,Op2,Op3,BinInstruction);
           break;
 
           case LOAD: // OK
@@ -520,8 +588,8 @@ void AssemblyGenerator(Quadruple *Q)
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,2);
               Op3 = GiveMeANumber(Q->Op3,1);
-              BinInstruction = TypeI(LOAD,Op2->Address,Op1->Address,Op3->Address);
-              InsertAssembly(I,LOAD,Op1,Op2,AssemblyZero,BinInstruction);
+              BinInstruction = TypeI(LOAD,Op3->Address,Op1->Address,Op2->Address);
+              InsertAssembly(I,LOAD,Op1,Op2,Op3,BinInstruction);
           break;
 
           case MOVE: // OK
@@ -534,12 +602,7 @@ void AssemblyGenerator(Quadruple *Q)
           case JUMP: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
               BinInstruction = TypeJ(JUMP,Op1->Address);
-              InsertAssembly(J,JUMP,Op1,AssemblyNulo,AssemblyNulo,BinInstruction);
-          break;
-
-          case CALL:
-              Op1 = GiveMeANumber(Q->Op1,0);
-              //InsertAssembly(CALL,Op1,AssemblyNulo,AssemblyNulo,BinInstruction);
+              InsertAssembly(J,JUMP,AssemblyNulo,AssemblyNulo,Op1,BinInstruction);
           break;
 
           case OUT: // OK
@@ -561,8 +624,13 @@ void AssemblyGenerator(Quadruple *Q)
           case LI: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,1);
-              BinInstruction = TypeI(ADDI,AssemblyZero->Address,Op1->Address,Op2->Address);
-              InsertAssembly(I,ADDI,Op1,AssemblyZero,Op2,BinInstruction);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeI(ADDI,Op3->Address,Op1->Address,Op2->Address);
+              if( strcmp(Op3->Name,"_") == 0 )
+              {
+                  Op3 = AssemblyZero;
+              }
+              InsertAssembly(I,ADDI,Op1,Op3,Op2,BinInstruction);
           break;
 
           case ADD: // OK
@@ -571,6 +639,30 @@ void AssemblyGenerator(Quadruple *Q)
               Op3 = GiveMeANumber(Q->Op3,1);
               BinInstruction = TypeR(ADD,Op2->Address,Op3->Address,Op1->Address,0);
               InsertAssembly(R,ADD,Op1,Op2,Op3,BinInstruction);
+          break;
+
+          case SUB: // OK
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeR(SUB,Op3->Address,Op2->Address,Op1->Address,1);
+              InsertAssembly(R,SUB,Op1,Op2,Op3,BinInstruction);
+          break;
+
+          case MULT: // OK
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeR(MULT,Op3->Address,Op2->Address,Op1->Address,2);
+              InsertAssembly(R,MULT,Op1,Op2,Op3,BinInstruction);
+          break;
+
+          case DIV: // OK
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeR(DIV,Op3->Address,Op2->Address,Op1->Address,3);
+              InsertAssembly(R,DIV,Op1,Op2,Op3,BinInstruction);
           break;
 
           case BEQ: // OK
@@ -589,12 +681,89 @@ void AssemblyGenerator(Quadruple *Q)
               InsertAssembly(R,SLt,Op1,Op2,Op3,BinInstruction);
           break;
 
+          case sbte:
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeR(sbte,Op3->Address,Op2->Address,Op1->Address,0);
+              InsertAssembly(R,sbte,Op1,Op2,Op3,BinInstruction);
+          break;
+
+          case equal:
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeR(equal,Op3->Address,Op2->Address,Op1->Address,0);
+              InsertAssembly(R,equal,Op1,Op2,Op3,BinInstruction);
+          break;
+
+          case sbt:
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeR(sbt,Op3->Address,Op2->Address,Op1->Address,0);
+              InsertAssembly(R,sbt,Op1,Op2,Op3,BinInstruction);
+          break;
+
+          case slte:
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeR(slte,Op3->Address,Op2->Address,Op1->Address,0);
+              InsertAssembly(R,slte,Op1,Op2,Op3,BinInstruction);
+          break;
+
+          case POP:
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = InsertOperandAssembly(Q->Op2->Local->memloc,Int2String(Q->Op2->Local->memloc));
+              BinInstruction = TypeR(POP,Op2->Address,Op1->Address,0,0);
+              InsertAssembly(R,POP,Op1,Op2,AssemblyNulo,BinInstruction);
+              if(Q->Op2->kind == Param) // Caso < 2: Quero um valor
+              {
+                  BinInstruction= TypeI(STORE,AssemblyZero->Address,Op2->Address,Op3->Address);
+                  InsertAssembly(1,STORE,Op2,Op3,AssemblyZero,BinInstruction);
+              }
+          break;
+
+          case PUSH:
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,0);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeR(PUSH,Op3->Address,Op2->Address,Op1->Address,0);
+              InsertAssembly(R,PUSH,Op1,Op2,AssemblyNulo,BinInstruction);
+          break;
+
           case RETURNi:
               printf("\tjr %s\n",Q->Op1->Variable);
           break;
 
           case JR:
-              printf("\t%s %s\n",Instruct,Q->Op1->Variable);
+                Op1 = GiveMeANumber(Q->Op1,0);
+                Op2 = InsertOperandAssembly(20,TypeRegister(20));
+
+                BinInstruction = TypeR(POP,Op2->Address,Op1->Address,0,0);
+                InsertAssembly(R,POP,Op1,Op2,AssemblyNulo,BinInstruction);
+
+                BinInstruction = TypeI(JR,Op2->Address,AssemblyZero->Address,AssemblyZero->Address);
+                InsertAssembly(I,JR,Op2,AssemblyNulo,AssemblyNulo,BinInstruction);
+          break;
+
+
+          case CALL:
+                NewIndex = IndexAssembly + 3;
+                Op1 = GiveMeANumber(Q->Op1,0);
+                Op2 = InsertOperandAssembly(20,TypeRegister(20));
+                Op3 = InsertOperandAssembly(NewIndex,Int2String(NewIndex));
+                Op4 = InsertOperandAssembly(1,TypeRegister(1));
+
+                BinInstruction = TypeI(ADDI,0,Op2->Address,NewIndex);
+                InsertAssembly(I,ADDI,Op2,AssemblyZero,Op3,BinInstruction);
+
+                BinInstruction = TypeR(PUSH,Op2->Address,Op4->Address,0,0);
+                InsertAssembly(R,PUSH,Op4,Op2,AssemblyNulo,BinInstruction);
+                BinInstruction = TypeJ(JUMP,Op1->Address);
+                InsertAssembly(J,JUMP,AssemblyNulo,AssemblyNulo,Op1,BinInstruction);
           break;
 
           default:
@@ -611,7 +780,8 @@ void BinaryPrint()
     printf("\033[01;33m"); printf("\n[Binary and Assembly Generator]\n"); printf("\033[0m\n");
     while(it!=NULL)
     {
-          printf("Memory[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
+          //printf("Memory[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
+          printf("%d : %s;\n",it->IndexLine,it->BinaryMode);
           it = it->next;
     }
 }
@@ -626,24 +796,48 @@ void CorrectionMarks()
     while(it!=NULL)
     {
           im = strlen(it->BinaryMode);
-          if( im < 33 )
+          if( im < 32 )
           {
                 int k = SearchMark(it->Op3->Name);
-                im_ = BinarizeMe(k,33-im);
+                im_ = BinarizeMe(k,32-im);
                 strcat(it->BinaryMode,im_);
           }
-            else
-            {
-                printf("%s\n",it->BinaryMode);
-            }
           it = it->next;
     }
+}
+
+void Processor_Configs()
+{
+      int PilhaArgumentos = 50;
+      int ChamadaFuncao = 75;
+      AssemblyOp Op1,Op2;
+      char *InstructBin;
+
+      // Ponteiro de pilha de argumentos
+      Op1 = InsertOperandAssembly(1,TypeRegister(1));
+      Op2 = InsertOperandAssembly(PilhaArgumentos,Int2String(PilhaArgumentos));
+      InstructBin = TypeI(ADDI,AssemblyZero->Address,Op1->Address,Op2->Address);
+      InsertAssembly(I,ADDI,Op1,AssemblyZero,Op2,InstructBin);
+
+      // Ponteiro de chamada de função
+      Op1 = InsertOperandAssembly(31,TypeRegister(31));
+      Op2 = InsertOperandAssembly(ChamadaFuncao,Int2String(ChamadaFuncao));
+      InstructBin = TypeI(ADDI,AssemblyZero->Address,Op1->Address,Op2->Address);
+      InsertAssembly(I,ADDI,Op1,AssemblyZero,Op2,InstructBin);
+
+      // Saltar para main
+      AssemblyOp Main = InsertOperandAssembly(-1,"main");
+      InstructBin = TypeJ(JUMP,Main->Address);
+      InsertAssembly(J,JUMP,AssemblyNulo,AssemblyNulo,Main,InstructBin);
+
+      //
 }
 
 void Assembly()
 {
     AssemblyZero = InsertOperandAssembly(0,TypeRegister(0));
     AssemblyNulo = InsertOperandAssembly(0,"");
+    Processor_Configs();
     AssemblyGenerator(IntermediaryFirst);
     CorrectionMarks();
     BinaryPrint();

@@ -1,4 +1,4 @@
-typedef enum {Empty,Constant, Variable, Mark, Call_Value, ArrVariable,ArrEmpty,ArrParam} TypeOP;
+typedef enum {Empty,Constant, Variable, Mark, Call_Value, ArrVariable,ArrEmpty,ArrParam, Param} TypeOP;
 
 typedef enum {ADD, SUB, MULT, DIV, INC, DEC, AND, OR,
               NOT, XOR, ADDI, MOVE, SLt,slte,sbt,sbte,equal,diff,

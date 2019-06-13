@@ -1,12 +1,12 @@
 #include <string.h>
 
-char *Opcodes[] = {"000000_","000000_","000000_","000000_","000000_","000000_",
-                  "000001_","000001_","000001_","000001_","000010_","000011_",
-                  "000100_","slte","sbt","sbte","equal","diff",
-                  "000101_","000110_","000111_","001000_","001001_",
-                  "001010_","001011_","001100_","sll","srl","sgt",
-                  "set","mod","jr","jal","li","001101_",
-                  "001110_","call","halt","return"};
+char *Opcodes[] = {"000000","000000","000000","000000","000000","000000",
+                  "000001","000001","000001","000001","000010","000011",
+                  "000100","010010","001111","010001","010000","diff",
+                  "000101","000110","000111","001000","001001",
+                  "001010","001011","001100","sll","srl","sgt",
+                  "set","mod","010011","jal","li","001101",
+                  "001110","call","halt","return"};
 
 void Int2Bin(int Value,char *BinaryElement)
 {
@@ -82,10 +82,10 @@ char *TypeI(int Opcode,int rs, int rt, int Imediato)
 char *TypeJ(int Opcode, int Imediato)
 {
       char *Instruction = (char*)malloc(34*sizeof(char));
-      char *Imediato_ = BinarizeMe(Imediato,26);
       strcat(Instruction,Opcodes[Opcode]);
       if( Imediato != -1 )
       {
+          char *Imediato_ = BinarizeMe(Imediato,26);
           strcat(Instruction,Imediato_); //free(Imediato_);
       }
       return Instruction;

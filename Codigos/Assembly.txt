@@ -1,0 +1,61 @@
+addi	$ra $zero 50
+addi	$sp $zero 75
+jump	  main
+nop	max
+sw	$a0 0($zero)
+sw	$a1 1($zero)
+lw	$s0 0($zero)
+lw	$s1 1($zero)
+sbt	$t0 $s0 $s1
+beq	$t0 0 L0
+lw	$s1 0($zero)
+move	$a0 $s1 
+out	$a0  
+jump	  L1
+nop	L0
+lw	$s1 1($zero)
+move	$a0 $s1 
+out	$a0  
+nop	L1
+pop	$ra $s0 
+jr	$s0  
+nop	max2
+sw	$a0 3($zero)
+sw	$a1 4($zero)
+lw	$s0 3($zero)
+lw	$s1 4($zero)
+sbt	$t0 $s0 $s1
+beq	$t0 0 L2
+lw	$s1 3($zero)
+move	$a0 $s1 
+out	$a0  
+jump	  L3
+nop	L2
+lw	$s1 4($zero)
+move	$a0 $s1 
+out	$a0  
+nop	L3
+pop	$ra $s0 
+jr	$s0  
+nop	main
+addi	$t0 $zero 2
+move	$a0 $t0 
+addi	$t1 $zero 3
+move	$a1 $t1 
+addi	$s0 $zero 47
+push	$ra $s0 
+jump	  max
+addi	$t2 $zero 1
+move	$a0 $t2 
+out	$a0  
+addi	$t3 $zero 15
+move	$a0 $t3 
+addi	$t4 $zero 13
+move	$a1 $t4 
+addi	$s0 $zero 57
+push	$ra $s0 
+jump	  max2
+addi	$t5 $zero 2
+move	$a0 $t5 
+out	$a0  
+halt	  

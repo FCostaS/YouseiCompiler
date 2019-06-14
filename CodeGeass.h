@@ -127,20 +127,6 @@ void PrintQuadruple(Instructions I,Operand Op1,Operand Op2, Operand Op3, char *M
     Intermediary       = Q;
 }
 
-void ShowMeQuadruplas()
-{
-      Quadruple *it = IntermediaryFirst;
-      while(it!=NULL)
-      {
-          printf("%d: (%s,%s,%s,%s)\n",it->IndexLine
-                                    ,TypeInstruction(it->Inst)
-                                    ,it->Op1->Variable
-                                    ,it->Op2->Variable
-                                    ,it->Op3->Variable);
-          it = it->next;
-      }
-}
-
 /* Função de atribuição temporária, sem gerenciamento */
 char *GiveMeTemporary()
 {

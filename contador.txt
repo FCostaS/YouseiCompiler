@@ -2,17 +2,34 @@
 
 void max(int a,int b)
 {
-		output(a);
-		output(b);
+		if(a>b)
+		{
+				output(a);
+		}
+			else
+			{
+					output(b);
+			}
+}
+
+
+void max2(int a,int b)
+{
+		if(a>b)
+		{
+				output(a);
+		}
+			else
+			{
+					output(b);
+			}
 }
 
 
 void main(void)
 {
+		max(2,3);
+		output(1);
+		max2(15,13);
 		output(2);
-		output(5);
-		output(20);
-		output(15);
-		max(6,7);
-		output(3);
 }

@@ -5,6 +5,7 @@
 #include "CodeGeass.h"
 #include "CGen.h"
 #include "Binary.h"
+#include "Archive.h"
 
 /*static void cGen( TreeNode * tree);
 static void genExpK( TreeNode * t);
@@ -141,7 +142,7 @@ static void genExpK( TreeNode * t)
               {
                   genExpK(p1);
                   Op1 = InsertOperand(Empty,GiveMeArgs(),ARGS);
-                  PrintQuadruple(MOVE,Op1,CurrentOpK,OperadorZero,"");
+                  PrintQuadruple(MOVE,Op1,CurrentOpK,OperadorVazio,"");
                   CurrentOpK = Op1;
                   args++;
               }
@@ -327,15 +328,15 @@ static void genDeclK( TreeNode * t)
 
               Op1 = InsertOperand(ArrVariable,t->attr.name,-1);
               Op2 = InsertOperand(ArrParam,GiveMeArgs(),-1);
-              PrintQuadruple(STORE,Op1,Op2,OperadorZero,"-- Informando endereço de memória do vetor");
+              PrintQuadruple(STORE,Op2,Op1,OperadorZero,"-- Informando endereço de memória do vetor");
 
             break; // Util na atribuição de Registradores Gerais
             case ParamK:
 
               if(t->attr.type==Void) return;
 
-              Curegister = Reg;
-              l = st_lookup_Full(t->attr.name,CurrentFunction);
+              //Curegister = Reg;
+              //l = st_lookup_Full(t->attr.name,CurrentFunction);
               Op1 = InsertOperand(Param,t->attr.name,-1);
               Op2 = InsertOperand(Empty,GiveMeArgs(),ARGS);
               PrintQuadruple(STORE,Op2,Op1,OperadorZero,"-- Atribuindo argumentos da função");
@@ -401,12 +402,13 @@ static void cGen( TreeNode * tree)
 
 void codeGen(TreeNode * syntaxTree, char * codefile)
 {
-    printf("\033[01;33m"); printf("[Intermediary Code]\n"); printf("\033[0m");
+    //printf("\033[01;33m"); printf("[Intermediary Code]\n"); printf("\033[0m");
     CurrentFunction = "Global";
     OperadorVazio = InsertOperand(Empty,"_",0);
-    OperadorZero  = InsertOperand(Empty,"0",0);
+    OperadorZero  = InsertOperand(Empty,TypeRegister(0),0);
     cGen(syntaxTree);
     PrintQuadruple(HALT,OperadorVazio,OperadorVazio,OperadorVazio,"-- Fim do programa");
+    StartArchives();
     ShowMeQuadruplas();
 }
 /*******************************************************/
@@ -434,7 +436,7 @@ void InsertAssembly(int Type, Instructions I,AssemblyOp Op1,AssemblyOp Op2,Assem
     }
       else if (I == NOP )
       {
-        sprintf(MyinstructionBuffer,"%s %s",Inst,Op1->Name);
+        sprintf(MyinstructionBuffer,"%s\t%s",Inst,Op1->Name);
       }
         else
         {
@@ -544,8 +546,6 @@ AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
           A = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc)); // Caso 1: Quero um endereço
 
       return A;
-
-      break;
 
       default:
           A = InsertOperandAssembly(Op->val,Op->Variable);
@@ -774,14 +774,30 @@ void AssemblyGenerator(Quadruple *Q)
       AssemblyGenerator(Q->next);
 }
 
+void ShowMeQuadruplas()
+{
+      Quadruple *it = IntermediaryFirst;
+      while(it!=NULL)
+      {
+          fprintf(IntermediaryCode,"%d: (%s,%s,%s,%s)\n",it->IndexLine
+                                    ,TypeInstruction(it->Inst)
+                                    ,it->Op1->Variable
+                                    ,it->Op2->Variable
+                                    ,it->Op3->Variable);
+          it = it->next;
+      }
+}
+
 void BinaryPrint()
 {
     AssemblyInst *it = AssemblyFirst;
     printf("\033[01;33m"); printf("\n[Binary and Assembly Generator]\n"); printf("\033[0m\n");
     while(it!=NULL)
     {
-          //printf("Memory[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
-          printf("%d : %s;\n",it->IndexLine,it->BinaryMode);
+          printf("Memory[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
+          fprintf(Full,"Memory[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
+          fprintf(BinaryCode,"%d : %s;\n",it->IndexLine,it->BinaryMode);
+          fprintf(AssemblyCode,"%s\n",it->AssemblyMode);
           it = it->next;
     }
 }
@@ -835,10 +851,12 @@ void Processor_Configs()
 
 void Assembly()
 {
+    StartArchives();
     AssemblyZero = InsertOperandAssembly(0,TypeRegister(0));
     AssemblyNulo = InsertOperandAssembly(0,"");
     Processor_Configs();
     AssemblyGenerator(IntermediaryFirst);
     CorrectionMarks();
     BinaryPrint();
+    CloseArchives();
 }

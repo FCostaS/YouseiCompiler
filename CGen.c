@@ -350,7 +350,7 @@ static void genDeclK( TreeNode * t)
               //Curegister = Reg;
               //l = st_lookup_Full(t->attr.name,CurrentFunction);
               Op1 = InsertOperand(Param,t->attr.name,-1);
-              Op2 = InsertOperand(Empty,GiveMeArgs(),ARGS-1);
+              Op2 = InsertOperand(Empty,GiveMeArgs(),ARGS);
               PrintQuadruple(STORE,Op2,Op1,OperadorZero,"-- Atribuindo argumentos da função");
 
             break; // Util na atribuição de Registradores Gerais
@@ -571,6 +571,10 @@ AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
               }
       return A;
 
+      case Call_Value:
+            A = InsertOperandAssembly(30,TypeRegister(30));
+      break;
+
       default:
           A = InsertOperandAssembly(Op->val,Op->Variable);
           return A;
@@ -655,7 +659,8 @@ void AssemblyGenerator(Quadruple *Q)
           break;
 
           case JUMP: // OK
-              Op1 = GiveMeANumber(Q->Op1,0);
+              //Op1 = GiveMeANumber(Q->Op1,0);
+              Op1 = InsertOperandAssembly(-1,Q->Op1->Variable);
               BinInstruction = TypeJ(JUMP,Op1->Address);
               InsertAssembly(J,JUMP,AssemblyNulo,AssemblyNulo,Op1,BinInstruction);
           break;
@@ -668,6 +673,7 @@ void AssemblyGenerator(Quadruple *Q)
 
           case IN:
               Op1 = GiveMeANumber(Q->Op1,0);
+              BinInstruction = TypeI(IN,Op1->Address,0,0);
               InsertAssembly(I,IN,Op1,AssemblyNulo,AssemblyNulo,BinInstruction);
           break;
 
@@ -807,7 +813,7 @@ void AssemblyGenerator(Quadruple *Q)
 
           case CALL:
                 NewIndex = IndexAssembly + 3;
-                Op1 = GiveMeANumber(Q->Op1,0);
+                Op1 = InsertOperandAssembly(-1,Q->Op1->Variable);
                 Op2 = InsertOperandAssembly(20,TypeRegister(20));
                 Op3 = InsertOperandAssembly(NewIndex,Int2String(NewIndex));
                 Op4 = InsertOperandAssembly(1,TypeRegister(1));

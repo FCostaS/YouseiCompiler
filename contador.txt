@@ -2,13 +2,13 @@
 
 int vetor[15];
 
-void max(int v[])
+void max(int v[], int n)
 {
 		int i;
 
 		i = 0;
 
-		while(i<10)
+		while(i<n)
 		{
 				v[i] = i*2;
 				i = i + 1;
@@ -20,10 +20,14 @@ void main(void)
 {
 		int vet[10];
 		int i;
-		i = 0;
-		max(vet);
+		int n;
 
-		while(i<10)
+		i = 0;
+		n = 10;
+
+		max(vet,n);
+
+		while(i<n)
 		{
 				output(vet[i]);
 				i = i + 1;

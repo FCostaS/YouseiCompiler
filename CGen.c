@@ -178,7 +178,7 @@ static void genExpK( TreeNode * t)
             p2 = t->child[1];
             p3 = t->child[2];
 
-            genExpK(p1);
+            /*genExpK(p1);
             if(p1->kind.exp == CalcK)
             { Op1 = InsertOperand(Empty,GiveMeTemporary(),Reg-1); }
             else if (p1->kind.exp == CallK)
@@ -193,6 +193,17 @@ static void genExpK( TreeNode * t)
             else{ Op2 = CurrentOpK; }
 
             genExpK(p2);
+            Op3 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);
+            CurrentOpK = Op3;*/
+
+            genExpK(p1);
+            Op1 = CurrentOpK;
+
+            genExpK(p3);
+            Op2 = CurrentOpK;
+
+            genExpK(p2);
+
             Op3 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);
             CurrentOpK = Op3;
 

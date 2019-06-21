@@ -3,10 +3,8 @@
 
 int gcd (int u, int v)
 {
-    output(u);
-    output(v);
-	 if (v == 0) return u;
-	  else return gcd(v,u-u/v*v);
+	   if (v == 0) return u;
+	    else return gcd(v,u-u/v*v);
 	   /* u-u/v*v == u mod v */
 }
 
@@ -18,8 +16,8 @@ void main(void)
 	/*x = input();
   y = input();*/
 
-  x = 6;
-  y = 16;
+  x = 26;
+  y = 208;
 
 	output(gcd(x,y));
 }

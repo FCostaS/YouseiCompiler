@@ -96,7 +96,7 @@ static void insertNode( TreeNode * t)
                   hashTable = temp; // Atualizo para hash atual
               }
                 // Considera que a variável já foi declarada, não precisa inserir tipo na tabela (Default)
-                else{ st_insert(t->attr.name, t->lineno, location, Default); }
+                else{ st_insert(t->attr.name, t->lineno, location, Default, 0); }
 
               break;
               case TypeK:   Attrib = 0; break; // Nada a fazer
@@ -111,7 +111,7 @@ static void insertNode( TreeNode * t)
                   hashTable = temp; // Atualizo para hash atual
               }
                 // Considera que a variável já foi declarada, não precisa inserir tipo na tabela (Default)
-                else{ st_insert(t->attr.name, t->lineno, location, Default); }
+                else{ st_insert(t->attr.name, t->lineno, location, Default, 0); }
 
               break; // Nada a fazer
               case CallK:  // Tratando Erro tipo 2 e tipo 5
@@ -163,8 +163,8 @@ static void insertNode( TreeNode * t)
                     if(IO == 1){ k = FunctInt; }
                     else if( IO == 2){ k = FunctVoid; }
                     if( st_lookup(t->attr.name) == -1 )
-                    { st_insert(t->attr.name, t->lineno, location++, k); }
-                      else { st_insert(t->attr.name, t->lineno, location, k);}
+                    { st_insert(t->attr.name, t->lineno, location++, k, 0); }
+                      else { st_insert(t->attr.name, t->lineno, location, k, 0);}
 
                 }
 
@@ -183,7 +183,7 @@ static void insertNode( TreeNode * t)
               case ArrParamK:
                     Parameters++;
                     AnalyzeErrosDecl(t,0);
-                    st_insert(t->attr.name, t->lineno,location, IntArray);
+                    st_insert(t->attr.name, t->lineno,location, IntArray, 1);
                     location++;
               break;
 
@@ -192,20 +192,20 @@ static void insertNode( TreeNode * t)
                     {
                         Parameters++;
                         AnalyzeErrosDecl(t,0);
-                        st_insert(t->attr.name, t->lineno, location, Int);
+                        st_insert(t->attr.name, t->lineno, location, Int, 0);
                         location++;
                     }
               break;
 
               case ArrVarK: // Tipo da declarada é void | Variável já foi declarada
                     AnalyzeErrosDecl(t,1);
-                    st_insert(t->attr.arr.name, t->lineno, location, IntArray);
+                    st_insert(t->attr.arr.name, t->lineno, location, IntArray, 0);
                     location+=t->attr.arr.size;
               break;
 
               case VarK: // Tratando erro tipo 3 e 4 e 7.1
                     AnalyzeErrosDecl(t,0);
-                    st_insert(t->attr.name, t->lineno, location, Int);
+                    st_insert(t->attr.name, t->lineno, location, Int, 0);
                     location++;
               break;
 

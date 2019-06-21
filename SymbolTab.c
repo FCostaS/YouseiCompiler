@@ -83,7 +83,7 @@ BucketList st_lookup_Full( char * name , char *funct )
 
 
 /* Insere numeros de linhas e localização da memória na tabela de símbolos */
-void st_insert( char * name, int lineno, int loc ,VarType var)
+void st_insert( char * name, int lineno, int loc ,VarType var, int isPointer)
 {
   int h = hash(name);
   BucketList l =  hashTable[h];
@@ -97,6 +97,7 @@ void st_insert( char * name, int lineno, int loc ,VarType var)
     l->lines = (LineList) malloc(sizeof(struct LineListRec));
     l->lines->lineno = lineno;
     l->memloc = loc;
+    l->Pointer = isPointer;
     l->lines->next = NULL;
     l->next = hashTable[h];
     hashTable[h] = l;

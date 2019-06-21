@@ -1,35 +1,31 @@
 /* Contador crescente e decrescente */
 
-void max(int a,int b)
+int vetor[15];
+
+void max(int v[])
 {
-		if(a>b)
+		int i;
+
+		i = 0;
+
+		while(i<10)
 		{
-				output(a);
+				v[i] = i*2;
+				i = i + 1;
 		}
-			else
-			{
-					output(b);
-			}
+
 }
-
-
-void max2(int a,int b)
-{
-		if(a>b)
-		{
-				output(a);
-		}
-			else
-			{
-					output(b);
-			}
-}
-
 
 void main(void)
 {
-		max(2,3);
-		output(1);
-		max2(15,13);
-		output(2);
+		int vet[10];
+		int i;
+		i = 0;
+		max(vet);
+
+		while(i<10)
+		{
+				output(vet[i]);
+				i = i + 1;
+		}
 }

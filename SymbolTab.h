@@ -20,6 +20,7 @@ typedef struct BucketListRec{
     char *name;
      LineList lines;
      VarType DataType;
+     int Pointer;
      int memloc; /* memory location for variable */
      struct BucketListRec *next;
 }*BucketList;
@@ -49,7 +50,7 @@ Escopo Programa, EscopoAtual;
 int hash ( char *key ); /* Peguei do Tiny sem modificar */
 void printSymTab(FILE * listing); /* Coloquei um while para imprimir uma tabela para cada escopo */
 int st_lookup ( char * name ); /* Peguei do Tiny sem modificar */
-void st_insert( char * name, int lineno, int loc ,VarType var); /* Peguei do Tiny sem modificar,
+void st_insert( char * name, int lineno, int loc ,VarType var, int isPointer); /* Peguei do Tiny sem modificar,
                                                                   apenas adicionei informações acerca da função */
 VarType st_lookup_Type( char * name );
 BucketList st_lookup_Full( char * name , char *funct );

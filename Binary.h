@@ -6,7 +6,52 @@ char *Opcodes[] = {"000000","000000","000000","000000","000000","000000",
                   "000101","000110","000111","001000","001001",
                   "001010","001011","001100","sll","srl","sgt",
                   "set","mod","010011","jal","li","001101",
-                  "001110","call","halt","return"};
+                  "001110","call","halt","return","010100"};
+
+/*
+"000000", ADD  (OK)
+"000000", SUB  (OK)
+"000000", MULT (OK)
+"000000", DIV  (OK)
+"000000", INC   XX
+"000000", DEC   XX
+"000001", AND   XX
+"000001", OR    XX
+"000001", NOT   XX
+"000001", XOR   XX
+"000010", ADDI  (OK)
+"000011", MOVE  (OK)
+"000100", SLt   (OK)
+"010010", slte
+"001111", sbt
+"010001", sbte
+"010000", equal
+"diff",  diff
+"000101",JUMP  (OK)
+"000110", LOAD (OK)
+"000111", STORE (OK)
+"001000", IN    (OK)
+"001001", OUT   (OK)
+"001010", BEQ   (OK)
+"001011", BNE   XX
+"001100", NOP   (OK)
+"sll",    SLL
+"srl",    SRL
+"sgt",    SGT
+"set",    SET
+"mod",    MOD
+"010011", JR   (--)
+"jal",    JAL
+"li",     LI
+"001101", PUSH XX
+"001110", POP  XX
+"call",   CALL
+"halt",   HALT
+"return", RETURN
+"010100", SUBI
+};
+*/
+
 
 void Int2Bin(int Value,char *BinaryElement)
 {

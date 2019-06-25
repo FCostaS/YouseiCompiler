@@ -1,0 +1,29 @@
+
+void PreencherVetor(int vet[],int N)
+{
+    int i;
+    i = 0;
+
+    while(i<N)
+    {
+        vet[i] = 2*i;
+    }
+
+}
+
+void main(void)
+{
+    int i;
+    int n;
+    int Primos[30];
+
+    n = 5;
+    PreencherVetor(Primos,n);
+
+    i = 0;
+    while(i<n)
+    {
+        output(Primos[i]);
+        i = i + 1;
+    }
+}

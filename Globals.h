@@ -69,6 +69,7 @@ typedef struct treeNode {
 
 // FLAGS
 extern int TSymbol;
+int ALLOC_STACK;
 
 //////////////////////////////////////////////
 // PARSE FUNÇÕES

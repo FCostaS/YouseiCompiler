@@ -245,6 +245,7 @@ void buildSymtab(TreeNode * syntaxTree)
     traverse(syntaxTree,insertNode,nullProc); /* Peguei do Tiny sem alterar */
     if(TemMain==0){ ErrorType(syntaxTree,6,EscopoAtual->nameEscopo,location); }
     if(TSymbol == TRUE){ printSymTab(listing); }
+    ALLOC_STACK = location;
 }
 
 /* As funções AnalyzeErrosDecl e  AnalyzeErrosDeclArray são as mesmas, com exceção

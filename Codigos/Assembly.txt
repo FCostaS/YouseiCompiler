@@ -1,54 +1,123 @@
-addi	$ra $zero 37
-addi	$sp $zero 87
+addi	$ra $zero 115
+addi	$sp $zero 165
 jump	main
-nop	PreencherVetor
+nop	ZeraMultiplos
 sw	$a0 0($zero)
 sw	$a1 1($zero)
-addi	$t0 $zero 0
-sw	$t0 2($zero)
+sw	$a2 2($zero)
+sw	$a3 3($zero)
 nop	L0
-lw	$s0 2($zero)
-lw	$s1 1($zero)
-slt	$t0 $s0 $s1
-beq	$t0 0 L1
-addi	$t1 $zero 2
-lw	$s1 2($zero)
-mult	$t2 $t1 $s1
 lw	$s0 0($zero)
+lw	$s1 1($zero)
+mult	$t0 $s0 $s1
 lw	$s1 2($zero)
-add	$t3 $s0 $s1
-sw	$t2 0($t3)
+slt	$t1 $t0 $s1
+beq	$t1 0 L1
+addi	$t2 $zero 0
+lw	$s0 0($zero)
+lw	$s1 1($zero)
+mult	$t3 $s0 $s1
+lw	$s0 3($zero)
+add	$t4 $s0 $t3
+sw	$t2 0($t4)
+addi	$t0 $zero 1
+lw	$s0 1($zero)
+add	$t1 $s0 $t0
+sw	$t1 1($zero)
 jump	L0
 nop	L1
 subi	$ra $ra 1
 lw	$s0 0($ra)
 jr	$s0  
-nop	main
-addi	$t0 $zero 5
-sw	$t0 4($zero)
-addi	$a0 $zero 5
-lw	$s1 4($zero)
-move	$a1 $s1 
-addi	$s0 $zero 35
-sw	$s0 0($ra)
-addi	$ra $ra 1
-jump	PreencherVetor
-addi	$t0 $zero 0
-sw	$t0 3($zero)
+nop	Crivo
+sw	$a0 4($zero)
+sw	$a1 5($zero)
+addi	$t0 $zero 2
+sw	$t0 6($zero)
 nop	L2
-lw	$s0 3($zero)
-lw	$s1 4($zero)
+lw	$s0 6($zero)
+lw	$s1 5($zero)
 slt	$t0 $s0 $s1
 beq	$t0 0 L3
-add	$s2 5 $zero
-lw	$s1 3($zero)
-lw	$t1 $s2($s1)
-move	$a0 $t1 
-out	$a0  
+lw	$s1 6($zero)
+lw	$s0 4($zero)
+add	$s0 $s0 $s1
+lw	$t1 0($s0)
 addi	$t2 $zero 1
-lw	$s0 3($zero)
-add	$t3 $s0 $t2
-sw	$t3 3($zero)
+equal	$t3 $t1 $t2
+beq	$t3 0 L4
+lw	$s1 6($zero)
+move	$a0 $s1 
+lw	$s1 6($zero)
+move	$a1 $s1 
+lw	$s1 5($zero)
+move	$a2 $s1 
+lw	$a3 4($zero)
+addi	$s0 $zero 59
+sw	$s0 0($ra)
+addi	$ra $ra 1
+jump	ZeraMultiplos
+jump	L5
+nop	L4
+nop	L5
+addi	$t4 $zero 1
+lw	$s0 6($zero)
+add	$t5 $s0 $t4
+sw	$t5 6($zero)
 jump	L2
 nop	L3
+subi	$ra $ra 1
+lw	$s0 0($ra)
+jr	$s0  
+nop	main
+in	$a0  
+sw	$a0 9($zero)
+addi	$t0 $zero 0
+sw	$t0 10($zero)
+nop	L6
+lw	$s0 10($zero)
+lw	$s1 9($zero)
+slt	$t0 $s0 $s1
+beq	$t0 0 L7
+addi	$t1 $zero 1
+lw	$s1 10($zero)
+addi	$t2 $s1 12
+sw	$t1 0($t2)
+addi	$t0 $zero 1
+lw	$s0 10($zero)
+add	$t1 $s0 $t0
+sw	$t1 10($zero)
+jump	L6
+nop	L7
+addi	$a0 $zero 12
+lw	$s1 9($zero)
+move	$a1 $s1 
+addi	$s0 $zero 98
+sw	$s0 0($ra)
+addi	$ra $ra 1
+jump	Crivo
+addi	$t0 $zero 2
+sw	$t0 10($zero)
+nop	L8
+lw	$s0 10($zero)
+lw	$s1 9($zero)
+slt	$t0 $s0 $s1
+beq	$t0 0 L9
+lw	$s1 10($zero)
+lw	$t1 12($s1)
+addi	$t2 $zero 1
+equal	$t3 $t1 $t2
+beq	$t3 0 L10
+lw	$s1 10($zero)
+move	$a0 $s1 
+out	$a0  
+jump	L11
+nop	L10
+nop	L11
+addi	$t4 $zero 1
+lw	$s0 10($zero)
+add	$t5 $s0 $t4
+sw	$t5 10($zero)
+jump	L8
+nop	L9
 halt	  

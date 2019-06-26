@@ -1,4 +1,4 @@
-typedef enum {Empty,Constant, Variable, Mark, Call_Value, ArrVariable,ArrEmpty,ArrParam, Param} TypeOP;
+typedef enum {Empty,Argument,Constant, Variable, Mark, Call_Value, ArrVariable,ArrEmpty,ArrParam, Param} TypeOP;
 
 typedef enum {ADD, SUB, MULT, DIV, INC, DEC, AND, OR,
               NOT, XOR, ADDI, MOVE, SLt,slte,sbt,sbte,equal,diff,
@@ -42,6 +42,7 @@ typedef struct Assembly{
 }AssemblyInst;
 
 Quadruple *Intermediary = NULL,*IntermediaryFirst;
+Quadruple *Parameters = NULL,*ParametersFirst;
 AssemblyInst *AssemblyList = NULL, *AssemblyFirst;
 
 typedef struct Marks{
@@ -78,6 +79,25 @@ static Operand AllocOp()
     Operand O = (Operand)malloc(sizeof(Operand));
     O->Local = NULL;
     return O;
+}
+
+void InsertParams(Instructions I,Operand Op1,Operand Op2, Operand Op3, char *Message)
+{
+    Quadruple *Q  = (Quadruple*)malloc(sizeof(Quadruple));
+    if(Parameters == NULL)
+    {
+        Parameters      = Q;
+        ParametersFirst = Q;
+    }
+    Parameters->next = Q;
+    Q->Op1             = Op1;
+    Q->Op2             = Op2;
+    Q->Op3             = Op3;
+    Q->Inst            = I;
+    Q->IndexLine       = LineCode;
+    Q->next            = NULL;
+    Parameters         = Q;
+    LineCode++;
 }
 
 void InsertMark(char *NameMark, int MarkNumber)

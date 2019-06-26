@@ -81,14 +81,31 @@ static Operand InsertOperand(TypeOP expo,char *nameVariable,int constant)
     return Op;
 }
 
+void StackParams(Instructions I,Quadruple *it)
+{
+      if(it!=NULL)
+      {
+          if(I == POP)
+          {
+                PrintQuadruple(I,it->Op1,it->Op2,it->Op3,"");
+                StackParams(I,it->next);
+          }
+            else
+            {
+                    StackParams(I,it->next);
+                    PrintQuadruple(I,it->Op1,it->Op2,it->Op3,"");
+            }
+      }
+}
+
 static void genExpK( TreeNode * t)
 {
-    int loc,args;
+    int loc,args,RECURSION;
     TreeNode *p1, *p2, *p3;
     Operand Op1,Op2,Op3;
     VarType temp;
     char Buffer[5],*CurrentReg;
-    BucketList l;
+    BucketList l,PointerInfo;
     switch (t->kind.exp)
     {
         case OpK:
@@ -109,7 +126,7 @@ static void genExpK( TreeNode * t)
         break;
 
         case ConstK:
-            Op1 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);
+            Op1 = InsertOperand(Empty,GiveMeTemporary(),Reg);
             Op2 = InsertOperand(Constant,Int2String(t->attr.val),t->attr.val);
             PrintQuadruple(LI,Op1,Op2,OperadorVazio,"");
             CurrentOpK = Op1;
@@ -125,9 +142,21 @@ static void genExpK( TreeNode * t)
             genExpK(t->child[0]);
             Op1 = CurrentOpK;
             Op2 = InsertOperand(ArrVariable,t->attr.name,-1);
-            CurrentOpK = InsertOperand(ArrEmpty,GiveMeTemporary(),Reg-1);
+            CurrentOpK = InsertOperand(ArrEmpty,GiveMeTemporary(),Reg);
             if(Assign_Type){ PrintQuadruple(LOAD,CurrentOpK,Op2,Op1,"-- Fazendo leitura da memória p/ registrador"); }
-            else{ PrintQuadruple(ADD,CurrentOpK,Op2,Op1,"-- Calculando endereço da memória"); }
+            else{
+                PointerInfo = st_lookup_Full(t->attr.name,CurrentFunction);
+                if(PointerInfo==NULL)
+                { PointerInfo = st_lookup_Full(t->attr.name,"Global"); }
+                if(PointerInfo->Pointer)
+                {
+                      PrintQuadruple(ADD,CurrentOpK,Op2,Op1,"-- Fazendo leitura da memória p/ registrador");
+                }
+                  else
+                  {
+                      PrintQuadruple(ADDI,CurrentOpK,Op2,Op1,"-- Calculando endereço da memória");
+                  }
+                }
         break;
 
         case CallK:   // Chamada de Função (Análise de Argumentos da Função
@@ -142,6 +171,17 @@ static void genExpK( TreeNode * t)
                   return;
               }
 
+              if(strcmp(t->attr.name,CurrentFunction)==0)
+              {
+                    // printf("Recursão Detectada\n");
+                     RECURSION = 1;
+                     StackParams(PUSH,ParametersFirst);
+              }
+                 else
+                 {
+                     RECURSION = 0;
+                 }
+
               for(p1=t->child[0]; p1!=NULL;p1 = p1->sibling)
               {
                   genExpK(p1);
@@ -149,7 +189,11 @@ static void genExpK( TreeNode * t)
 
                   if(CurrentOpK->kind == Variable && CurrentOpK->Local->DataType==IntArray)
                   {
-                        PrintQuadruple(LI,Op1,CurrentOpK,OperadorZero,"");
+                        if(CurrentOpK->Local->Pointer)
+                        {
+                            PrintQuadruple(LOAD,Op1,CurrentOpK,OperadorZero,"");
+                        }
+                        else PrintQuadruple(LI,Op1,CurrentOpK,OperadorZero,"");
                   }
                     else
                     {
@@ -171,6 +215,12 @@ static void genExpK( TreeNode * t)
                 {
                     PrintQuadruple(OUT,CurrentOpK,OperadorVazio,OperadorVazio,"");
                 }
+
+              if( RECURSION == 1 )
+              {
+                    // Desempilha
+                    StackParams(POP,ParametersFirst);
+              }
         break;
         case CalcK:
 
@@ -204,7 +254,7 @@ static void genExpK( TreeNode * t)
 
             genExpK(p2);
 
-            Op3 = InsertOperand(Empty,GiveMeTemporary(),Reg-1);
+            Op3 = InsertOperand(Empty,GiveMeTemporary(),Reg);
             CurrentOpK = Op3;
 
             PrintQuadruple(CurrentInst,Op3,Op1,Op2,"");
@@ -234,10 +284,11 @@ static void genStmtK( TreeNode * tree)
 
           //TESTE
           CurrentReg = ShowMeTemporary();
-          op3 = InsertOperand(Empty,CurrentReg,Reg);
+          //op3 = InsertOperand(Empty,CurrentReg,Reg);
           CurrentLabel1 = GiveMeLabel();
           CurrentLabel2 = GiveMeLabel();
           cGen(p1); /* teste lógico */
+          op3 = CurrentOpK;
           op2 = InsertOperand(Mark,CurrentLabel1,-1);
           PrintQuadruple(BEQ,op3,InsertOperand(Constant,copyString("0"),0),op2,"-- Início do If");
 
@@ -351,8 +402,10 @@ static void genDeclK( TreeNode * t)
 
               Op1 = InsertOperand(ArrParam,t->attr.name,-1);
               Op2 = InsertOperand(Empty,GiveMeArgs(),ARGS);
+              Op3 = InsertOperand(Empty,TypeRegister(31),31);
               PrintQuadruple(STORE,Op2,Op1,OperadorZero,"-- Informando endereço de memória do vetor");
-
+              Op1->kind = ArrVariable;
+              InsertParams(PUSH,Op3,Op1,OperadorVazio,"-- Salva argumento");
             break; // Util na atribuição de Registradores Gerais
             case ParamK:
 
@@ -363,19 +416,26 @@ static void genDeclK( TreeNode * t)
               Op1 = InsertOperand(Param,t->attr.name,-1);
               Op2 = InsertOperand(Empty,GiveMeArgs(),ARGS);
               PrintQuadruple(STORE,Op2,Op1,OperadorZero,"-- Atribuindo argumentos da função");
+              Op3 = InsertOperand(Empty,TypeRegister(31),31);
+              Op1->kind = Variable;
+              InsertParams(PUSH,Op3,Op1,OperadorVazio,"-- Salva argumento");
 
             break; // Util na atribuição de Registradores Gerais
             case ArrVarK:
-
+              Op1 = InsertOperand(ArrVariable,t->attr.arr.name,-1);
+              Op3 = InsertOperand(Empty,TypeRegister(31),31);
+              InsertParams(PUSH,Op3,Op1,OperadorVazio,"-- Salva argumento");
               /*l = st_lookup_Full(t->attr.arr.name,CurrentFunction);
               Op2 = InsertOperand(Empty,GiveMeGeral(),GeralReg-1);             // Registrador Zero
               Op1 = InsertOperand(ArrVariable,t->attr.arr.name,l->memloc); // Nome da variável
               PrintQuadruple(MOVE,Op2,Op1,OperadorVazio,"-- Reserva registrador geral para vetor");
               */
-
             break; // Util na atribuição de Registradores Temporários
             case VarK:
 
+              Op1 = InsertOperand(Variable,t->attr.name,-1);
+              Op3 = InsertOperand(Empty,TypeRegister(31),31);
+              InsertParams(PUSH,Op3,Op1,OperadorVazio,"-- Salva argumento");
               /*
               l = st_lookup_Full(t->attr.name,CurrentFunction);
               Op2 = InsertOperand(Empty,GiveMeGeral(),GeralReg-1);             // Registrador Zero
@@ -567,7 +627,7 @@ AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
 
       case ArrVariable:
 
-            if(Op->Local->Pointer)
+            if(Op->Local->Pointer && !TypeValueAssembly)
             {
                 A = InsertOperandAssembly(TypeValueAssembly+20,TypeRegister(TypeValueAssembly+20));
                 B = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc));
@@ -578,13 +638,9 @@ AssemblyOp GiveMeANumber(Operand Op,int TypeValueAssembly)
             }
               else
               {
-                  A = InsertOperandAssembly(TypeValueAssembly+20,TypeRegister(TypeValueAssembly+20));
-                  B = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc));
-                  C = AssemblyZero;
-                  BinInstruction= TypeI(ADD,C->Address,A->Address,B->Address);
-                  InsertAssembly(1,ADD,A,B,C,BinInstruction);
-                  //A = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc)); // Caso 1: Quero um endereço
+                  A = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc)); // Caso 1: Quero um endereço
               }
+            //A = InsertOperandAssembly(Op->Local->memloc,Int2String(Op->Local->memloc)); // Caso 1: Quero um endereço
       return A;
 
       case Call_Value:
@@ -623,13 +679,27 @@ void Inst_POP(AssemblyOp Op1, AssemblyOp Op2, AssemblyOp Op3)
 
 }
 
+int IS_ARGUMENT(char  *Op)
+{
+    int i = 0;
+    while(i<=5)
+    {
+          if(strcmp(Op,TypeRegister(i+2))==0)
+          {
+              return 0;
+          }
+          i = i + 1;
+    }
+    return 1;
+}
+
 void AssemblyGenerator(Quadruple *Q)
 {
       if(Q==NULL) return;
 
       AssemblyOp Op1,Op2,Op3,Op4,Op5;
       char *BinInstruction = NULL;
-      int NewIndex;
+      int NewIndex, Is_Args;
 
       char *Instruct = TypeInstruction(Q->Inst);
       switch (Q->Inst)
@@ -643,14 +713,15 @@ void AssemblyGenerator(Quadruple *Q)
 
           case STORE: // OK
               // Nem sempre será 0
-              Op1 = GiveMeANumber(Q->Op1,0);
+              Is_Args = IS_ARGUMENT(Q->Op1->Variable);
+              Op1 = GiveMeANumber(Q->Op1,Is_Args);
               Op2 = GiveMeANumber(Q->Op2,2);
               Op3 = GiveMeANumber(Q->Op3,1);
-              if(Q->Op2->kind != Empty && Q->Op2->kind != ArrParam  && Q->Op2->Local->Pointer==1)
+              if(Is_Args && Q->Op1->kind != Empty && Q->Op2->Local->Pointer==1)
               {
                     Op4 = InsertOperandAssembly(20,TypeRegister(20));
-                    BinInstruction = TypeI(LOAD,AssemblyZero->Address,Op2->Address,Op4->Address);
-                    InsertAssembly(I,LOAD,Op4,Op2,AssemblyZero,BinInstruction);
+                    BinInstruction = TypeI(LOAD,Op2->Address,Op4->Address,AssemblyFixo->Address);
+                    InsertAssembly(I,LOAD,Op4,AssemblyFixo,Op2,BinInstruction);
 
                     BinInstruction = TypeR(ADD,Op3->Address,Op4->Address,Op4->Address,0);
                     InsertAssembly(I,ADD,Op4,Op4,Op3,BinInstruction);
@@ -667,11 +738,12 @@ void AssemblyGenerator(Quadruple *Q)
 
           case LOAD: // OK
               // Nem sempre será 0
-              Op1 = GiveMeANumber(Q->Op1,0);
+              Is_Args = IS_ARGUMENT(Q->Op1->Variable);
+              Op1 = GiveMeANumber(Q->Op1,Is_Args);
               Op2 = GiveMeANumber(Q->Op2,2);
               Op3 = GiveMeANumber(Q->Op3,1);
               // Se for um ponteiro, então o endereço está na variável
-              if(Q->Op2->kind != Empty && Q->Op2->kind != ArrParam && Q->Op2->Local->Pointer==1)
+              if(Q->Op1->kind != Empty && Q->Op2->kind != ArrParam && Q->Op2->Local->Pointer==1)
               {
                     Op4 = InsertOperandAssembly(20,TypeRegister(20));
                     Op5 = InsertOperandAssembly(0,Int2String(0));
@@ -734,12 +806,22 @@ void AssemblyGenerator(Quadruple *Q)
               InsertAssembly(I,ADDI,Op1,Op3,Op2,BinInstruction);
           break;
 
+          case ADDI: // OK
+              Op1 = GiveMeANumber(Q->Op1,0);
+              Op2 = GiveMeANumber(Q->Op2,1);
+              Op3 = GiveMeANumber(Q->Op3,1);
+              BinInstruction = TypeI(ADDI,Op3->Address,Op1->Address,Op2->Address);
+              InsertAssembly(I,ADDI,Op1,Op3,Op2,BinInstruction);
+          break;
+
           case ADD: // OK
               Op1 = GiveMeANumber(Q->Op1,0);
               Op2 = GiveMeANumber(Q->Op2,0);
               Op3 = GiveMeANumber(Q->Op3,1);
+
               BinInstruction = TypeR(ADD,Op2->Address,Op3->Address,Op1->Address,0);
               InsertAssembly(R,ADD,Op1,Op2,Op3,BinInstruction);
+
           break;
 
           case SUB: // OK
@@ -888,7 +970,7 @@ void ShowMeQuadruplas()
       Quadruple *it = IntermediaryFirst;
       while(it!=NULL)
       {
-          fprintf(IntermediaryCode,"%d: (%s,%s,%s,%s)\n",it->IndexLine
+          fprintf(IntermediaryCode,"(%s,%s,%s,%s)\n"
                                     ,TypeInstruction(it->Inst)
                                     ,it->Op1->Variable
                                     ,it->Op2->Variable

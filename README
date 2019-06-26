@@ -1,0 +1,1 @@
+clear && bison -d CFL.y && flex ER.l && gcc *.c -o  Compile && ./Compile

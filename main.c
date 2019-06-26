@@ -6,5 +6,7 @@ int main()
     //RunCompiler("CMinus.txt");
     //RunCompiler("gcd.txt");
     //RunCompiler("contador.txt");
-    RunCompiler("Teste.txt");
+    //RunCompiler("Teste.txt");
+    RunCompiler("Eratostenes.txt");
+    //RunCompiler("FIBONACCI.txt");
 }

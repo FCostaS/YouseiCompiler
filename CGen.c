@@ -700,8 +700,8 @@ void AssemblyGenerator(Quadruple *Q)
       AssemblyOp Op1,Op2,Op3,Op4,Op5;
       char *BinInstruction = NULL;
       int NewIndex, Is_Args;
-
       char *Instruct = TypeInstruction(Q->Inst);
+
       switch (Q->Inst)
       {
           case NOP:
@@ -713,27 +713,36 @@ void AssemblyGenerator(Quadruple *Q)
 
           case STORE: // OK
               // Nem sempre será 0
-              Is_Args = IS_ARGUMENT(Q->Op1->Variable);
+              if( Q->Op1->kind != ArrEmpty && Q->Op1->kind != Empty )
+              {
+                  Is_Args = IS_ARGUMENT(Q->Op1->Variable);
+              } else { Is_Args = 0; }
               Op1 = GiveMeANumber(Q->Op1,Is_Args);
               Op2 = GiveMeANumber(Q->Op2,2);
               Op3 = GiveMeANumber(Q->Op3,1);
-              if(Is_Args && Q->Op1->kind != Empty && Q->Op2->Local->Pointer==1)
+
+              if(Q->Op1->kind == Variable)
               {
-                    Op4 = InsertOperandAssembly(20,TypeRegister(20));
-                    BinInstruction = TypeI(LOAD,Op2->Address,Op4->Address,AssemblyFixo->Address);
-                    InsertAssembly(I,LOAD,Op4,AssemblyFixo,Op2,BinInstruction);
-
-                    BinInstruction = TypeR(ADD,Op3->Address,Op4->Address,Op4->Address,0);
-                    InsertAssembly(I,ADD,Op4,Op4,Op3,BinInstruction);
-
-                    BinInstruction = TypeI(STORE,Op4->Address,Op1->Address,Op2->Address);
-                    InsertAssembly(I,STORE,Op1,Op2,Op4,BinInstruction);
-              }
-                else
-                {
                     BinInstruction = TypeI(STORE,Op3->Address,Op1->Address,Op2->Address);
                     InsertAssembly(I,STORE,Op1,Op2,Op3,BinInstruction);
+              }
+                else if(Is_Args && Q->Op1->kind != Empty && Q->Op2->Local->Pointer==1)
+                {
+                      Op4 = InsertOperandAssembly(20,TypeRegister(20));
+                      BinInstruction = TypeI(LOAD,Op2->Address,Op4->Address,AssemblyFixo->Address);
+                      InsertAssembly(I,LOAD,Op4,AssemblyFixo,Op2,BinInstruction);
+
+                      BinInstruction = TypeR(ADD,Op3->Address,Op4->Address,Op4->Address,0);
+                      InsertAssembly(I,ADD,Op4,Op4,Op3,BinInstruction);
+
+                      BinInstruction = TypeI(STORE,Op4->Address,Op1->Address,Op2->Address);
+                      InsertAssembly(I,STORE,Op1,Op2,Op4,BinInstruction);
                 }
+                  else
+                  {
+                      BinInstruction = TypeI(STORE,Op3->Address,Op1->Address,Op2->Address);
+                      InsertAssembly(I,STORE,Op1,Op2,Op3,BinInstruction);
+                  }
           break;
 
           case LOAD: // OK

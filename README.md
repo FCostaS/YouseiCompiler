@@ -1,5 +1,5 @@
-# YouseiCompiler
-My compiler for discipline Compiladores.
+# Yousei Compiler
+Compilador para linguagem C- implementado na disciplina: Laboratório de Sistemas Computacionais - Compiladores.
 
 - bison -d CFL.y
 - flex ER.l

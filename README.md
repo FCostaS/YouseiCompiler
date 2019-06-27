@@ -1,6 +1,7 @@
 # Yousei Compiler
 Compilador para linguagem C- implementado na disciplina: Laboratório de Sistemas Computacionais - Compiladores.
 
+Para roda-lo:
 - bison -d CFL.y
 - flex ER.l
 - gcc *.c -o Compile && ./Compile

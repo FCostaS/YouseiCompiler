@@ -1,0 +1,25 @@
+void main(void)
+{
+  int a;
+  int b;
+  int auxiliar;
+  int i;
+  int n;
+
+  a = 0;
+  b = 1;
+
+  n = 10; /*input();  N Fibonacci */
+  output(b);
+
+  i = 0;
+  while(i < n)
+  {
+    auxiliar = a + b;
+    a = b;
+    b = auxiliar;
+
+    output(auxiliar);
+    i = i + 1;
+  }
+}

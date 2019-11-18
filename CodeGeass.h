@@ -3,7 +3,8 @@ typedef enum {Empty,Argument,Constant, Variable, Mark, Call_Value, ArrVariable,A
 typedef enum {ADD, SUB, MULT, DIV, INC, DEC, AND, OR,
               NOT, XOR, ADDI, MOVE, SLt,slte,sbt,sbte,equal,diff,
               JUMP, LOAD, STORE, IN, OUT, BEQ, BNE, NOP, SLL, SRL,
-              SGT, SET, MOD, JR, JAL, LI, PUSH, POP,CALL,HALT,RETURNi,SUBI} Instructions;
+              SGT, SET, MOD, JR, JAL, LI, PUSH, POP,CALL,HALT,RETURNi,SUBI,
+            BEGIN_FILE,END_FILE,MANUAL,SET_PID} Instructions;
 
 typedef enum{z0,r0,a0,a1,a2,a3,a4,a5,t0 ,t1,
              t2,t3,t4,t5,t6,t7,t8,t9,t10,s0,
@@ -62,7 +63,7 @@ char * InstructionsNames[] = {"add","sub","mult","div","inc","dec",
                               "jump","lw","sw","in","out",
                               "beq","bne","nop","sll","srl","sgt",
                               "set","mod","jr","jal","li","push",
-                              "pop","call","halt","return","subi"};
+                              "pop","call","halt","return","subi","begin file","end file","manual","set_pid"};
 
 char *RegistersBank[] =   {"$zero","$ra","$a0","$a1","$a2","$a3","$a4","$a5",
                           "$t0","$t1","$t2","$t3","$t4","$t5","$t6","$t7",

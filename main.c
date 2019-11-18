@@ -1,12 +1,11 @@
 #include "CodigoFonte.h" // Biblioteca com as variaveis e funcoes do codigo fonte
 
-int main()
+int main(int argc, char **argv)
 {
-    //RunCompiler("sort com erros.txt");
-    RunCompiler("CMinus.txt");
-    //RunCompiler("gcd.txt");
-    //RunCompiler("contador.txt");
-    //RunCompiler("Teste.txt");
-    //RunCompiler("Eratostenes.txt");
-    //RunCompiler("FIBONACCI.txt");
+    if(argc > 1)
+    {
+      RunCompiler(argv[1]);
+    }else{
+      printf("Use ./Yousei <codigo.yousei>");
+    }
 }

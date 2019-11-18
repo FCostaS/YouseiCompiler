@@ -13,7 +13,7 @@ static void genStmtK( TreeNode * tree);
 static void genDeclK( TreeNode * t);*/
 
 int i,ArrControl;
-int CurrentInst;
+int CurrentInst, EspacoDados;
 char *CurrentFunction;
 Operand CurrentOpK,OperadorVazio,OperadorZero,OperadorFixo;
 
@@ -166,6 +166,15 @@ static void genExpK( TreeNode * t)
               {
                   Op1 = InsertOperand(Empty,GiveMeArgs(),2);
                   PrintQuadruple(IN,Op1,OperadorVazio,OperadorVazio,"");
+                  CurrentOpK = Op1;
+                  args++;
+                  return;
+              }
+
+              if(strcmp(t->attr.name,"MANUAL")==0)
+              {
+                  Op1 = InsertOperand(Empty,GiveMeArgs(),2);
+                  PrintQuadruple(MANUAL,Op1,OperadorVazio,OperadorVazio,"");
                   CurrentOpK = Op1;
                   args++;
                   return;
@@ -492,6 +501,7 @@ void codeGen(TreeNode * syntaxTree, char * codefile)
     OperadorFixo  = InsertOperand(Empty,Int2String(0),0);
     cGen(syntaxTree);
     PrintQuadruple(HALT,OperadorVazio,OperadorVazio,OperadorVazio,"-- Fim do programa");
+    PrintQuadruple(END_FILE,OperadorVazio,OperadorVazio,OperadorVazio,"-- END FILE");
     StartArchives();
     ShowMeQuadruplas();
 }
@@ -932,7 +942,7 @@ void AssemblyGenerator(Quadruple *Q)
           break;
 
           case RETURNi:
-              printf("\tjr %s\n",Q->Op1->Variable);
+              //printf("\tjr %s\n",Q->Op1->Variable);
           break;
 
           case JR:
@@ -966,8 +976,45 @@ void AssemblyGenerator(Quadruple *Q)
                 InsertAssembly(J,JUMP,AssemblyNulo,AssemblyNulo,Op1,BinInstruction);
           break;
 
+          case BEGIN_FILE:
+              BinInstruction = TypeJ(BEGIN_FILE,IndexAssembly);
+              InsertAssembly(J,BEGIN_FILE,AssemblyNulo,AssemblyNulo,AssemblyNulo,BinInstruction);
+          break;
+
+          case END_FILE:
+              BinInstruction = TypeJ(SET_PID,0);
+              InsertAssembly(J,SET_PID,AssemblyNulo,AssemblyNulo,AssemblyNulo,BinInstruction);
+
+              Op1 = InsertOperandAssembly(29,TypeRegister(29));
+              Op2 = InsertOperandAssembly(1,Int2String(1));
+
+              BinInstruction= TypeI(LOAD,Op1->Address,AssemblyZero->Address,AssemblyZero->Address); /* LOAD $3,0($zero) */
+              InsertAssembly(I,LOAD,AssemblyZero,AssemblyZero,Op1,BinInstruction);
+
+              BinInstruction = TypeI(SUBI,Op1->Address,Op1->Address,Op2->Address); /* SUBI $3,$3,1 */
+              InsertAssembly(I,SUBI,Op1,Op1,Op2,BinInstruction);
+
+              /* STORE $3,0($zero) */
+
+              BinInstruction = TypeJ(END_FILE,EspacoDados);
+              InsertAssembly(J,END_FILE,AssemblyNulo,AssemblyNulo,AssemblyNulo,BinInstruction);
+          break;
+
+          case MANUAL:
+              BinInstruction = TypeJ(MANUAL,0);
+              InsertAssembly(J,MANUAL,AssemblyNulo,AssemblyNulo,AssemblyNulo,BinInstruction);
+          break;
+
+          case diff:
+            Op1 = GiveMeANumber(Q->Op1,0);
+            Op2 = GiveMeANumber(Q->Op2,0);
+            Op3 = GiveMeANumber(Q->Op3,1);
+            BinInstruction = TypeR(diff,Op3->Address,Op2->Address,Op1->Address,0);
+            InsertAssembly(R,diff,Op1,Op2,Op3,BinInstruction);
+          break;
+
           default:
-              printf("\t%s %s,%s,%s\n",Instruct,Q->Op1->Variable,Q->Op2->Variable,Q->Op3->Variable);
+              printf("\t[%d] %s %s,%s,%s\n",IndexAssembly,Instruct,Q->Op1->Variable,Q->Op2->Variable,Q->Op3->Variable);
           break;
       }
       Q->BinaryMode = BinInstruction;
@@ -991,11 +1038,11 @@ void ShowMeQuadruplas()
 void BinaryPrint()
 {
     AssemblyInst *it = AssemblyFirst;
-    printf("\033[01;33m"); printf("\n[Binary and Assembly Generator]\n"); printf("\033[0m\n");
+    //printf("\033[01;33m"); printf("\n[Binary and Assembly Generator]\n"); printf("\033[0m\n");
     while(it!=NULL)
     {
-          printf("Memory[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
-          fprintf(Full,"Memory[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
+          printf("ram[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
+          fprintf(Full,"ram[%2d] = 32'B%s; // %s\n",it->IndexLine,it->BinaryMode,it->AssemblyMode);
           fprintf(BinaryCode,"%d : %s;\n",it->IndexLine,it->BinaryMode);
           fprintf(AssemblyCode,"%s\n",it->AssemblyMode);
           it = it->next;
@@ -1025,13 +1072,16 @@ void CorrectionMarks()
 void Processor_Configs()
 {
       int PilhaArgumentos = ALLOC_STACK;
-      int ChamadaFuncao = PilhaArgumentos + 50;
+      int ChamadaFuncao = PilhaArgumentos + 25;
+      EspacoDados = 50;
       AssemblyOp Op1,Op2;
       char *InstructBin;
 
       // Ponteiro de pilha de argumentos
       Op1 = InsertOperandAssembly(1,TypeRegister(1));
       Op2 = InsertOperandAssembly(PilhaArgumentos,Int2String(PilhaArgumentos));
+      InstructBin = TypeI(BEGIN_FILE,AssemblyNulo->Address,AssemblyNulo->Address,AssemblyNulo->Address);
+      InsertAssembly(J,BEGIN_FILE,AssemblyNulo,AssemblyNulo,AssemblyNulo,InstructBin);
       InstructBin = TypeI(ADDI,AssemblyZero->Address,Op1->Address,Op2->Address);
       InsertAssembly(I,ADDI,Op1,AssemblyZero,Op2,InstructBin);
 

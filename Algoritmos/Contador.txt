@@ -1,0 +1,15 @@
+/* Contador crescente | Esse programa imprime os números até n */
+
+void main(void)
+{
+		int i;
+		int n;
+
+		i = 0;
+		n = 10; /* n = input(); */
+
+		while( i<=n ) {
+				output(i);
+				i = i + 1;
+		}
+}

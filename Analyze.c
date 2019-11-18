@@ -100,8 +100,7 @@ static void insertNode( TreeNode * t)
 
               break;
               case TypeK:   Attrib = 0; break; // Nada a fazer
-              case ArrIdK:
-
+              case ArrIdK: Attrib = 0;
               if( st_lookup(t->attr.name) == -1 )     // Procuro a variável na tabela
               {
                   temp = hashTable;       // Guardo a hash atual
@@ -120,7 +119,7 @@ static void insertNode( TreeNode * t)
               Interator = Programa;
               ExpType type;
               int IO = 0;
-              if( (strcmp(t->attr.name,"input")==0) )
+              if( (strcmp(t->attr.name,"input")==0) || strcmp(t->attr.name,"MANUAL")==0 )
               {
                   IO = 1;
               }
@@ -128,6 +127,7 @@ static void insertNode( TreeNode * t)
               {
                   IO = 2;
               }
+
               while(Interator != NULL)
               {
                   if(strcmp(t->attr.name,Interator->nameEscopo)==0) // Procurando a função invocada na lista de funções

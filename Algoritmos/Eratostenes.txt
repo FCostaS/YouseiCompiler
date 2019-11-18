@@ -1,0 +1,57 @@
+/* Algoritmo de Erastostenes */
+
+void ZeraMultiplos(int i,int j,int N, int primos[])
+{
+    while( i*j < N )
+    {
+        primos[i*j] = 0;
+        j = j + 1;
+    }
+}
+
+void Crivo(int primos[],int N)
+{
+      int i;
+      int j;
+      i = 2;
+
+      while( i < N )
+      {
+         if( primos[i] == 1 )
+         {
+             ZeraMultiplos(i,i,N,primos);
+         }
+         i = i + 1;
+      }
+}
+
+void main (void)
+{
+   int N;
+   int i;
+   int j;
+   int primos[100];
+
+
+   N = 10; /* input(); */
+
+   i = 0;
+   while( i < N )
+   {
+       primos[i] = 1;
+       i = i + 1;
+   }
+
+   Crivo(primos,N);
+
+   i = 2;
+   while( i < N )
+   {
+        if(primos[i] == 1)
+        {
+            output(i);
+        }
+        i = i + 1;
+   }
+
+}

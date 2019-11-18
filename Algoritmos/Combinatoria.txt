@@ -1,0 +1,32 @@
+
+int Combinatoria(int n, int p)
+{
+	int N;
+	int P;
+
+	N = 1;
+	P = 1;
+
+	while( p > 0 )
+	{
+		N = N*n;
+        P = P*p;
+
+        n = n-1;
+				p = p-1;
+	}
+
+	return N/P;
+}
+
+
+int main(void)
+{
+	int n;
+	int p;
+
+	n = 15;/* input(); */
+	p = 6; /* input(); */
+
+	output(Combinatoria(n,p));
+}

@@ -1,0 +1,20 @@
+int main(void)
+{
+    int a;
+    int b;
+    int minimo;
+
+    a = 45; /*input();*/
+    b = 6; /*input();*/
+
+    if(a > b)
+    {
+        minimo = b;
+    }
+        else
+        {
+            minimo = a;
+        }
+
+    output(minimo);
+}

@@ -1,0 +1,24 @@
+int PosicaoLivreHD;
+
+void LoadMemory(int Pos_HD, int Pos_RAM, int Tam_HD) {
+
+	int i; int j;
+
+	i = Pos_HD;
+	j = Pos_RAM;
+
+	while( k == 0 ){
+		ReadHD(i);
+		i = i + 1;
+		j = j + 1;
+		k = PosicaoLivreHD();
+	}
+	
+}
+
+void main(void){
+	int i;
+
+	ReadSO(0,0);
+
+}

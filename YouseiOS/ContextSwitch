@@ -1,0 +1,18 @@
+int Qtd_REG = 32;
+
+void ContextSwitch()
+{
+	int i;
+	int PID;
+
+	i = 0;
+	Process_PID = getPID(); /* getPID Reg <- PID_Pagina */
+
+	while(i <= Qtd_REG)
+	{
+		i = i + 1;
+		SaveContext(i,PID);
+	}
+
+
+}

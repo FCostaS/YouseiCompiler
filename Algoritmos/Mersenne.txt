@@ -1,0 +1,17 @@
+int main(void)
+{
+    int i;
+    int n;
+    int Mn;
+
+    n = 6;
+    i = 1;
+    Mn = 1;
+    while(i < n)
+    {
+        Mn = 2*Mn;
+        i = i+1;
+        output(Mn-1);
+    }
+
+}

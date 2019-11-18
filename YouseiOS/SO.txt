@@ -1,0 +1,75 @@
+# Variaveis Ambiente
+/*
+	int Processos[11];				// $t1 (1) guarda ponteiro na memória para os processos
+	int Qtd_Processos;				// $t2 (2) informa o indice do ultimo processo adicionado
+	int SO_Interruption;			// $t3 (3) Indica se o programa pediu interrupção
+	int Arch_Pointer;				// $t4 (4) ponteiro para HD
+*/
+
+SO:
+
+	Interpretador_De_Comandos:		// Bash
+
+		Syscall EmitMsg 1			// Chamada de função para escolher opção Bash
+		K <- input()
+		K == 0:						// Usuário deseja inserir processo
+			Syscall EmitMsg 2       
+			JAL InserirProcesso
+			JUMP Interpretador_De_Comandos
+
+		K == 1:						// Usuário deseja executar processos na fila com preempção
+			Syscall EmitMsg 3
+			JAL RunProcess_Com
+			JUMP Interpretador_De_Comandos
+
+
+		K == 2:						// Usuário deseja executar processos na fila sem preempção
+			Syscall EmitMsg 3
+			JAL RunProcess_Sem
+			JUMP Interpretador_De_Comandos
+
+		K == 3:						// Usuário deseja escrever programa
+			Syscall EmitMsg 4
+			JAL WriteProgram
+			JUMP Interpretador_De_Comandos
+
+	JUMP Interpretador_De_Comandos
+ 
+# Procedimentos
+InserirProcesso:
+	INPUT $s0						// Processo_input = input()
+	ADD $s1 $t1, $t2				// Processo + LastProcesso - Deslocando endereço de memória
+	STORE $s0, 0($s1)				// Processo[LastProcesso] = Processo_input
+	INC $t2							// Qtd_Processos +=1
+	Syscall Read_Process($s0)		// Solicita envio do programa para memória principal 
+	jr
+
+RunProcess_Com:
+	i = $s0
+	k = $s2	
+
+	ADDI $s0, 0, $zero  // i = 0
+
+	Executables:
+		BEQZ $t2, END_Programs	    // while( Qtd_Processo != 0 )
+		
+			INC $s0
+			MOD $s0,$s0,$t2			// i = mod(i+1,Qtd_Processos)
+
+			ADD $s1, $t1, $s0 	    // Calculando endereço de memória Processo[i]
+			LOAD $s2, 0($s1) 	    // k = Processo[i]
+			
+			Syscall SET_PID($s2)	// Indica PID que deve ser executado
+			Syscall Run_RoundRobin;	// Inicia temporizador Round Robin
+
+			BEQZ $t3, Executables	// Verifica se programa foi finalziado | Solicitou interrupção
+			ADDI $t3,$zero,0		// Reseta SO_Interruption
+			DEC $t2					// Decrementa qtd. processos
+			JUMP Executables
+ 
+	END_Programs:
+	jr
+
+WriteProgram:
+	Syscall PointerArchive	// Ultima posicao livre na memoria
+	
